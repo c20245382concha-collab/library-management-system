@@ -6,7 +6,6 @@ import {
     ArrowUpRight,
     BookOpen,
     Bookmark,
-    Check,
     Clock3,
     LibraryBig,
     Search,
@@ -407,7 +406,7 @@ export default function Welcome() {
                         </div>
 
                         <div className="mt-14 grid grid-cols-2 gap-5 sm:grid-cols-4 sm:gap-8">
-                            {books.map((book, index) => (
+                            {books.map((book) => (
                                 <article key={book.title} className="group">
                                     <div className="relative mx-auto max-w-[210px] transition duration-500 group-hover:-translate-y-3">
                                         <BookCover book={book} />

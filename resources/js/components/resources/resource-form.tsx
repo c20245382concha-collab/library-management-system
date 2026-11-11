@@ -121,7 +121,7 @@ export default function ResourceForm({
 
                         <form onSubmit={submit}>
                             <div className="space-y-7 p-6 md:p-8">
-                                {fields.map((field, index) => {
+                                {fields.map((field) => {
                                     const error = form.errors[field.name];
                                     const inputClass = `w-full rounded-xl border bg-[#fdfaf8] px-4 text-sm text-[#38252a] outline-none transition placeholder:text-[#b6a5a2] focus:border-[#843d4b] focus:bg-white focus:ring-2 focus:ring-[#843d4b]/10 ${error
                                         ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
