@@ -1,7 +1,18 @@
+
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
-import { Check, RotateCcw, Search, Send, X } from 'lucide-react';
+import {
+    BookOpen,
+    CalendarDays,
+    Check,
+    Clock3,
+    RotateCcw,
+    Search,
+    Send,
+    Users,
+    X,
+} from 'lucide-react';
 
 interface BorrowingItem {
     id: number;
@@ -22,74 +33,497 @@ interface BorrowingFilters {
 }
 
 function dateLabel(value?: string | null): string {
-    return value ? new Date(value).toLocaleDateString() : '—';
+    if (!value) return '—';
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? '—'
+        : date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
 }
 
-export default function BorrowingRequestsIndex({ requests, filters }: { requests: BorrowingPage; filters?: BorrowingFilters }) {
+function statusStyle(status: string) {
+    switch (status.toLowerCase()) {
+        case 'pending':
+            return 'border-amber-200 bg-amber-50 text-amber-700';
+        case 'approved':
+            return 'border-sky-200 bg-sky-50 text-sky-700';
+        case 'borrowed':
+            return 'border-violet-200 bg-violet-50 text-violet-700';
+        case 'returned':
+            return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+        case 'rejected':
+            return 'border-rose-200 bg-rose-50 text-rose-700';
+        default:
+            return 'border-gray-200 bg-gray-50 text-gray-600';
+    }
+}
+
+function StatusBadge({ status }: { status: string }) {
+    return (
+        <span
+            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold capitalize ${statusStyle(status)}`}
+        >
+            <span className="mr-2 size-1.5 rounded-full bg-current" />
+            {status}
+        </span>
+    );
+}
+
+export default function BorrowingRequestsIndex({
+    requests,
+    filters,
+}: {
+    requests: BorrowingPage;
+    filters?: BorrowingFilters;
+}) {
     const [search, setSearch] = useState(filters?.search ?? '');
 
     function searchRequests(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        router.get(route('borrowing-requests.index'), { search: search.trim() }, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+
+        router.get(
+            route('borrowing-requests.index'),
+            { search: search.trim() },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
     }
 
-    function transition(id: number, action: 'approve' | 'reject' | 'issue' | 'return') {
-        router.patch(route(`borrowing-requests.${action}`, id));
+    function clearSearch() {
+        setSearch('');
+
+        router.get(
+            route('borrowing-requests.index'),
+            {},
+            { preserveState: true, replace: true },
+        );
+    }
+
+    function transition(
+        id: number,
+        action: 'approve' | 'reject' | 'issue' | 'return',
+    ) {
+        const messages = {
+            approve: 'Approve this borrowing request?',
+            reject: 'Reject this borrowing request?',
+            issue: 'Confirm that this book has been issued?',
+            return: 'Mark this book as returned?',
+        };
+
+        if (window.confirm(messages[action])) {
+            router.patch(route(`borrowing-requests.${action}`, id));
+        }
+    }
+
+    const counts = {
+        pending: requests.data.filter((item) => item.status === 'pending').length,
+        approved: requests.data.filter((item) => item.status === 'approved').length,
+        borrowed: requests.data.filter((item) => item.status === 'borrowed').length,
+        returned: requests.data.filter((item) => item.status === 'returned').length,
+    };
+
+    const statistics = [
+        {
+            label: 'Pending Requests',
+            value: counts.pending,
+            icon: Clock3,
+            iconStyle: 'bg-amber-50 text-amber-700',
+            accent: 'border-l-amber-400',
+        },
+        {
+            label: 'Approved Requests',
+            value: counts.approved,
+            icon: Check,
+            iconStyle: 'bg-sky-50 text-sky-700',
+            accent: 'border-l-sky-400',
+        },
+        {
+            label: 'Currently Borrowed',
+            value: counts.borrowed,
+            icon: BookOpen,
+            iconStyle: 'bg-violet-50 text-violet-700',
+            accent: 'border-l-violet-400',
+        },
+        {
+            label: 'Returned Books',
+            value: counts.returned,
+            icon: RotateCcw,
+            iconStyle: 'bg-emerald-50 text-emerald-700',
+            accent: 'border-l-emerald-400',
+        },
+    ];
+
+    function RequestActions({ item }: { item: BorrowingItem }) {
+        return (
+            <div className="flex items-center gap-2">
+                {item.status === 'pending' && (
+                    <>
+                        <button
+                            type="button"
+                            title="Approve request"
+                            aria-label="Approve request"
+                            onClick={() => transition(item.id, 'approve')}
+                            className="flex size-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"
+                        >
+                            <Check className="size-4" />
+                        </button>
+
+                        <button
+                            type="button"
+                            title="Reject request"
+                            aria-label="Reject request"
+                            onClick={() => transition(item.id, 'reject')}
+                            className="flex size-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition hover:bg-rose-100"
+                        >
+                            <X className="size-4" />
+                        </button>
+                    </>
+                )}
+
+                {item.status === 'approved' && (
+                    <button
+                        type="button"
+                        title="Issue book"
+                        aria-label="Issue book"
+                        onClick={() => transition(item.id, 'issue')}
+                        className="flex size-9 items-center justify-center rounded-xl bg-[#f7e9e9] text-[#843d4b] transition hover:bg-[#f0d9dd]"
+                    >
+                        <Send className="size-4" />
+                    </button>
+                )}
+
+                {item.status === 'borrowed' && (
+                    <button
+                        type="button"
+                        title="Mark returned"
+                        aria-label="Mark returned"
+                        onClick={() => transition(item.id, 'return')}
+                        className="flex size-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"
+                    >
+                        <RotateCcw className="size-4" />
+                    </button>
+                )}
+
+                {!['pending', 'approved', 'borrowed'].includes(item.status) && (
+                    <span className="text-xs text-[#a28e8e]">No actions</span>
+                )}
+            </div>
+        );
     }
 
     return (
         <AppLayout>
             <Head title="Borrowing Requests" />
-            <main className="space-y-6 p-4 md:p-6">
-                <header><h1 className="text-2xl font-semibold">Borrowing Requests</h1><p className="mt-1 text-sm text-muted-foreground">Review requests and track books in circulation.</p></header>
-                <form onSubmit={searchRequests} className="flex max-w-xl gap-2">
-                    <label className="relative min-w-0 flex-1">
-                        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <input
-                            type="search"
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Member, book, status, or request ID"
-                            aria-label="Search borrowing requests"
-                            className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm"
-                        />
-                    </label>
-                    <button type="submit" className="h-10 rounded-md border px-4 text-sm font-medium">Search</button>
-                    {filters?.search && <button type="button" onClick={() => {
-                        setSearch('');
-                        router.get(route('borrowing-requests.index'), {}, { preserveState: true, replace: true });
-                    }} className="h-10 rounded-md px-3 text-sm text-muted-foreground hover:bg-muted">Clear</button>}
-                </form>
-                <div className="overflow-x-auto rounded-md border bg-card">
-                    <table className="w-full min-w-[760px] text-left text-sm">
-                        <thead className="border-b bg-muted/40 text-muted-foreground"><tr>
-                            <th className="px-4 py-3 font-medium">Member</th><th className="px-4 py-3 font-medium">Book</th><th className="px-4 py-3 font-medium">Requested</th><th className="px-4 py-3 font-medium">Due</th><th className="px-4 py-3 font-medium">Status</th><th className="px-4 py-3 text-right font-medium">Actions</th>
-                        </tr></thead>
-                        <tbody className="divide-y">
-                            {requests.data.map((item) => <tr key={item.id}>
-                                <td className="px-4 py-3">{item.user?.name ?? '—'}<span className="block text-xs text-muted-foreground">{item.user?.email}</span></td>
-                                <td className="px-4 py-3">{item.book?.title ?? '—'}</td>
-                                <td className="px-4 py-3">{dateLabel(item.requested_at)}</td>
-                                <td className="px-4 py-3">{dateLabel(item.due_date)}</td>
-                                <td className="px-4 py-3"><span className="rounded border px-2 py-1 text-xs capitalize">{item.status}</span></td>
-                                <td className="px-4 py-2"><div className="flex justify-end gap-1">
-                                    {item.status === 'pending' && <>
-                                        <button title="Approve" aria-label="Approve request" onClick={() => transition(item.id, 'approve')} className="rounded p-2 text-green-700 hover:bg-muted"><Check className="size-4" /></button>
-                                        <button title="Reject" aria-label="Reject request" onClick={() => transition(item.id, 'reject')} className="rounded p-2 text-destructive hover:bg-muted"><X className="size-4" /></button>
-                                    </>}
-                                    {item.status === 'approved' && <button title="Issue book" aria-label="Issue book" onClick={() => transition(item.id, 'issue')} className="rounded p-2 hover:bg-muted"><Send className="size-4" /></button>}
-                                    {item.status === 'borrowed' && <button title="Mark returned" aria-label="Mark returned" onClick={() => transition(item.id, 'return')} className="rounded p-2 hover:bg-muted"><RotateCcw className="size-4" /></button>}
-                                </div></td>
-                            </tr>)}
-                            {requests.data.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">No borrowing requests yet.</td></tr>}
-                        </tbody>
-                    </table>
+
+            <main className="min-h-screen bg-[#fbf7f3] px-4 py-7 md:px-8 md:py-10">
+                <div className="mx-auto max-w-7xl space-y-8">
+                    {/* Page heading */}
+                    <header className="relative overflow-hidden rounded-3xl bg-[#762f43] px-6 py-8 text-white shadow-lg shadow-[#762f43]/10 md:px-9 md:py-10">
+                        <div className="absolute -right-10 -top-20 size-64 rounded-full border-[35px] border-white/5" />
+                        <div className="absolute -bottom-24 right-48 size-52 rounded-full bg-[#a65c70]/20 blur-2xl" />
+
+                        <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
+                            <div>
+                                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#e8c5ce]">
+                                    <BookOpen className="size-4" />
+                                    ABCL Library Management
+                                </div>
+
+                                <h1 className="mt-3 font-serif text-3xl font-bold md:text-4xl">
+                                    Borrowing Requests
+                                </h1>
+
+                                <p className="mt-2 max-w-xl text-sm leading-6 text-white/70">
+                                    Review member requests, manage book circulation,
+                                    and keep track of borrowing transactions.
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-5 py-4 backdrop-blur-sm">
+                                <div className="flex size-11 items-center justify-center rounded-xl bg-white/10">
+                                    <Users className="size-5 text-[#f4dce0]" />
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold">
+                                        {requests.data.length}
+                                    </p>
+                                    <p className="text-xs text-white/70">
+                                        Records on this page
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Statistics */}
+                    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        {statistics.map((stat) => (
+                            <div
+                                key={stat.label}
+                                className={`rounded-2xl border border-[#eadfda] border-l-4 ${stat.accent} bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium text-[#927c7c]">
+                                        {stat.label}
+                                    </p>
+                                    <div
+                                        className={`flex size-11 items-center justify-center rounded-xl ${stat.iconStyle}`}
+                                    >
+                                        <stat.icon className="size-5" />
+                                    </div>
+                                </div>
+
+                                <p className="mt-3 font-serif text-3xl font-bold text-[#38252a]">
+                                    {stat.value}
+                                </p>
+                            </div>
+                        ))}
+                    </section>
+
+                    {/* Request records */}
+                    <section className="overflow-hidden rounded-3xl border border-[#eadfda] bg-white shadow-sm">
+                        <div className="flex flex-col gap-5 border-b border-[#f0e7e2] p-5 md:flex-row md:items-center md:justify-between md:p-7">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47b80]">
+                                    Circulation Management
+                                </p>
+                                <h2 className="mt-1 font-serif text-2xl font-bold text-[#38252a]">
+                                    Request Records
+                                </h2>
+                                <p className="mt-1 text-sm text-[#927c7c]">
+                                    Review and process borrowing transactions.
+                                </p>
+                            </div>
+
+                            <form
+                                onSubmit={searchRequests}
+                                className="flex w-full flex-wrap gap-2 md:max-w-xl"
+                            >
+                                <label className="relative min-w-0 flex-1">
+                                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#a28e8e]" />
+                                    <input
+                                        type="search"
+                                        value={search}
+                                        onChange={(event) => setSearch(event.target.value)}
+                                        placeholder="Search member, book, status, or ID..."
+                                        aria-label="Search borrowing requests"
+                                        className="h-11 w-full rounded-xl border border-[#eadfda] bg-[#fdfaf8] pl-10 pr-3 text-sm text-[#493438] outline-none transition placeholder:text-[#b7a8a4] focus:border-[#843d4b] focus:ring-2 focus:ring-[#843d4b]/10"
+                                    />
+                                </label>
+
+                                <button
+                                    type="submit"
+                                    className="h-11 rounded-xl bg-[#843d4b] px-5 text-sm font-semibold text-white transition hover:bg-[#6d303d]"
+                                >
+                                    Search
+                                </button>
+
+                                {filters?.search && (
+                                    <button
+                                        type="button"
+                                        onClick={clearSearch}
+                                        className="h-11 rounded-xl border border-[#eadfda] px-4 text-sm font-medium text-[#725e60] transition hover:bg-[#fbf7f3]"
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </form>
+                        </div>
+
+                        {/* Desktop table */}
+                        <div className="hidden overflow-x-auto lg:block">
+                            <table className="w-full min-w-[900px] text-left text-sm">
+                                <thead className="bg-[#fbf7f3] text-xs uppercase tracking-wider text-[#927c7c]">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold">Member</th>
+                                        <th className="px-6 py-4 font-semibold">Book</th>
+                                        <th className="px-6 py-4 font-semibold">Requested</th>
+                                        <th className="px-6 py-4 font-semibold">Due Date</th>
+                                        <th className="px-6 py-4 font-semibold">Status</th>
+                                        <th className="px-6 py-4 text-right font-semibold">Actions</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody className="divide-y divide-[#f0e7e2]">
+                                    {requests.data.map((item) => (
+                                        <tr
+                                            key={item.id}
+                                            className="transition hover:bg-[#fdfaf8]"
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f7e9e9] text-[#843d4b]">
+                                                        <Users className="size-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-[#493438]">
+                                                            {item.user?.name ?? 'Unknown member'}
+                                                        </p>
+                                                        <p className="mt-0.5 text-xs text-[#a28e8e]">
+                                                            {item.user?.email ?? '—'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="max-w-[230px] px-6 py-4">
+                                                <p className="line-clamp-2 font-medium text-[#493438]">
+                                                    {item.book?.title ?? 'Unknown book'}
+                                                </p>
+                                                <p className="mt-1 text-xs text-[#a28e8e]">
+                                                    Request #{item.id}
+                                                </p>
+                                            </td>
+
+                                            <td className="whitespace-nowrap px-6 py-4 text-[#725e60]">
+                                                {dateLabel(item.requested_at)}
+                                            </td>
+
+                                            <td className="whitespace-nowrap px-6 py-4 text-[#725e60]">
+                                                {dateLabel(item.due_date)}
+                                            </td>
+
+                                            <td className="px-6 py-4">
+                                                <StatusBadge status={item.status} />
+                                            </td>
+
+                                            <td className="px-6 py-4">
+                                                <div className="flex justify-end">
+                                                    <RequestActions item={item} />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {requests.data.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-16 text-center">
+                                                <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-[#f7e9e9] text-[#843d4b]">
+                                                    <BookOpen className="size-6" />
+                                                </div>
+                                                <h3 className="mt-4 font-serif text-lg font-semibold text-[#38252a]">
+                                                    No borrowing requests found
+                                                </h3>
+                                                <p className="mt-1 text-sm text-[#927c7c]">
+                                                    There are no records matching your search.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile and tablet cards */}
+                        <div className="grid gap-3 p-4 lg:hidden">
+                            {requests.data.map((item) => (
+                                <article
+                                    key={item.id}
+                                    className="rounded-2xl border border-[#eadfda] bg-[#fdfaf8] p-4"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f7e9e9] text-[#843d4b]">
+                                                <Users className="size-4" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="truncate font-semibold text-[#493438]">
+                                                    {item.user?.name ?? 'Unknown member'}
+                                                </p>
+                                                <p className="truncate text-xs text-[#a28e8e]">
+                                                    {item.user?.email ?? '—'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <StatusBadge status={item.status} />
+                                    </div>
+
+                                    <div className="my-4 border-t border-[#eadfda]" />
+
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-[#a47b80]">
+                                        Requested Book
+                                    </p>
+                                    <p className="mt-1 font-serif text-lg font-semibold text-[#493438]">
+                                        {item.book?.title ?? 'Unknown book'}
+                                    </p>
+                                    <p className="mt-1 text-xs text-[#a28e8e]">
+                                        Request #{item.id}
+                                    </p>
+
+                                    <div className="mt-4 grid grid-cols-2 gap-3">
+                                        <div>
+                                            <p className="flex items-center gap-1.5 text-xs text-[#a28e8e]">
+                                                <CalendarDays className="size-3.5" />
+                                                Requested
+                                            </p>
+                                            <p className="mt-1 text-sm font-medium text-[#725e60]">
+                                                {dateLabel(item.requested_at)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="flex items-center gap-1.5 text-xs text-[#a28e8e]">
+                                                <CalendarDays className="size-3.5" />
+                                                Due Date
+                                            </p>
+                                            <p className="mt-1 text-sm font-medium text-[#725e60]">
+                                                {dateLabel(item.due_date)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 flex items-center justify-between border-t border-[#eadfda] pt-4">
+                                        <span className="text-xs font-medium text-[#927c7c]">
+                                            Request Actions
+                                        </span>
+                                        <RequestActions item={item} />
+                                    </div>
+                                </article>
+                            ))}
+
+                            {requests.data.length === 0 && (
+                                <div className="px-4 py-12 text-center">
+                                    <BookOpen className="mx-auto size-9 text-[#c99ba4]" />
+                                    <h3 className="mt-3 font-serif text-lg font-semibold text-[#38252a]">
+                                        No borrowing requests found
+                                    </h3>
+                                    <p className="mt-1 text-sm text-[#927c7c]">
+                                        There are no records matching your search.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Pagination */}
+                        {requests.links && (
+                            <nav
+                                aria-label="Pagination"
+                                className="flex flex-wrap gap-2 border-t border-[#f0e7e2] px-5 py-4 md:px-6"
+                            >
+                                {requests.links.map((link, index) => (
+                                    <Link
+                                        key={`${link.label}-${index}`}
+                                        href={link.url ?? route('borrowing-requests.index')}
+                                        preserveScroll
+                                        className={`rounded-lg border px-3 py-2 text-sm transition ${link.active
+                                            ? 'border-[#843d4b] bg-[#843d4b] text-white'
+                                            : 'border-[#eadfda] text-[#725e60] hover:bg-[#fbf7f3]'
+                                            } ${!link.url ? 'pointer-events-none opacity-40' : ''}`}
+                                    >
+                                        {link.label.replace(/&laquo;|&raquo;/g, '').trim()}
+                                    </Link>
+                                ))}
+                            </nav>
+                        )}
+                    </section>
                 </div>
-                {requests.links && <nav aria-label="Pagination" className="flex flex-wrap gap-1">{requests.links.map((link, index) => <Link key={`${link.label}-${index}`} href={link.url ?? route('borrowing-requests.index')} preserveScroll className={`rounded border px-3 py-2 text-sm ${link.active ? 'bg-primary text-primary-foreground' : ''} ${!link.url ? 'pointer-events-none opacity-50' : ''}`}>{link.label.replace(/&laquo;|&raquo;/g, '').trim()}</Link>)}</nav>}
             </main>
         </AppLayout>
     );

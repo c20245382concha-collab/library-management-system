@@ -21,12 +21,14 @@ class BookController extends Controller
 {
     public function __construct(
         private BookService $bookService
-    ) {}
+    ) {
+    }
 
     public function index(SearchRequest $request): Response
     {
         $user = Auth::user();
         $isAdmin = $user instanceof User && $user->isAdmin();
+        Book::with(['author', 'publisher', 'genres'])->paginate(12);
 
         return Inertia::render('Books/Index', [
             'title' => 'Books',
@@ -99,8 +101,16 @@ class BookController extends Controller
             'updateRoute' => 'books.update',
             'recordId' => $book->id,
             'values' => $book->only([
-                'author_id', 'publisher_id', 'title', 'isbn', 'edition',
-                'publication_year', 'language', 'description', 'cover_image', 'total_copies',
+                'author_id',
+                'publisher_id',
+                'title',
+                'isbn',
+                'edition',
+                'publication_year',
+                'language',
+                'description',
+                'cover_image',
+                'total_copies',
             ]) + ['genre_ids' => $book->genres->modelKeys()],
             'fields' => $this->formFields(),
         ]);
@@ -131,7 +141,7 @@ class BookController extends Controller
         } catch (DomainException $exception) {
             return back()->with('error', $exception->getMessage());
         } catch (QueryException $exception) {
-            if (! str_starts_with((string) $exception->getCode(), '23')) {
+            if (!str_starts_with((string) $exception->getCode(), '23')) {
                 throw $exception;
             }
 
@@ -156,7 +166,7 @@ class BookController extends Controller
                 'label' => 'Author',
                 'type' => 'select',
                 'required' => true,
-                'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn ($author) => [
+                'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn($author) => [
                     'value' => $author->id,
                     'label' => $author->name,
                 ]),
@@ -166,7 +176,7 @@ class BookController extends Controller
                 'label' => 'Publisher',
                 'type' => 'select',
                 'required' => true,
-                'options' => Publisher::orderBy('publisher_name')->get(['id', 'publisher_name'])->map(fn ($publisher) => [
+                'options' => Publisher::orderBy('publisher_name')->get(['id', 'publisher_name'])->map(fn($publisher) => [
                     'value' => $publisher->id,
                     'label' => $publisher->publisher_name,
                 ]),
@@ -182,7 +192,7 @@ class BookController extends Controller
                 'name' => 'genre_ids',
                 'label' => 'Genres',
                 'type' => 'multi',
-                'options' => Genre::orderBy('genre_name')->get(['id', 'genre_name'])->map(fn ($genre) => [
+                'options' => Genre::orderBy('genre_name')->get(['id', 'genre_name'])->map(fn($genre) => [
                     'value' => $genre->id,
                     'label' => $genre->genre_name,
                 ]),
