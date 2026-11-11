@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BookRequest;
-use App\Models\Book;
+use App\Http\Requests\SearchRequest;
 use App\Models\Author;
-use App\Models\Publisher;
+use App\Models\Book;
 use App\Models\Genre;
+use App\Models\Publisher;
 use App\Models\User;
 use App\Services\BookService;
-use Illuminate\Database\QueryException;
 use DomainException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -22,15 +23,15 @@ class BookController extends Controller
         private BookService $bookService
     ) {}
 
-    public function index(): Response
+    public function index(SearchRequest $request): Response
     {
         $user = Auth::user();
         $isAdmin = $user instanceof User && $user->isAdmin();
 
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('Books/Index', [
             'title' => 'Books',
             'items' => $this->bookService->getAll(
-                search: request('search')
+                search: $request->validated('search')
             ),
             'columns' => [
                 ['key' => 'title', 'label' => 'Title'],
@@ -44,13 +45,13 @@ class BookController extends Controller
             'editRoute' => $isAdmin ? 'books.edit' : null,
             'deleteRoute' => $isAdmin ? 'books.destroy' : null,
             'showRoute' => 'books.show',
-            'filters' => request()->only('search'),
+            'filters' => $request->safe()->only('search'),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Books/Create', [
             'title' => 'Book',
             'indexRoute' => 'books.index',
             'storeRoute' => 'books.store',
@@ -73,11 +74,11 @@ class BookController extends Controller
         $isMember = $user instanceof User && $user->isMember();
 
         $book->load([
-                'author',
-                'publisher',
-                'genres',
-                'reviews.user',
-            ]);
+            'author',
+            'publisher',
+            'genres',
+            'reviews.user',
+        ]);
 
         return Inertia::render('Books/Show', [
             'book' => $book,
@@ -91,7 +92,7 @@ class BookController extends Controller
     {
         $book->load('genres');
 
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Books/Edit', [
             'title' => 'Book',
             'indexRoute' => 'books.index',
             'storeRoute' => 'books.store',
@@ -130,7 +131,7 @@ class BookController extends Controller
         } catch (DomainException $exception) {
             return back()->with('error', $exception->getMessage());
         } catch (QueryException $exception) {
-            if (!str_starts_with((string) $exception->getCode(), '23')) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
                 throw $exception;
             }
 
@@ -172,7 +173,7 @@ class BookController extends Controller
             ],
             ['name' => 'isbn', 'label' => 'ISBN'],
             ['name' => 'edition', 'label' => 'Edition'],
-            ['name' => 'publication_year', 'label' => 'Publication Year', 'type' => 'number', 'min' => 1000, 'max' => (int) date('Y')],
+            ['name' => 'publication_year', 'label' => 'Publication Year', 'type' => 'number', 'min' => 1000, 'max' => now()->year],
             ['name' => 'language', 'label' => 'Language', 'required' => true],
             ['name' => 'description', 'label' => 'Description', 'type' => 'textarea'],
             ['name' => 'cover_image', 'label' => 'Cover Image URL'],

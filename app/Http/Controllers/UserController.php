@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserRequest;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -17,12 +18,12 @@ class UserController extends Controller
         private UserService $userService
     ) {}
 
-    public function index(): Response
+    public function index(SearchRequest $request): Response
     {
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('Users/Index', [
             'title' => 'Users',
             'items' => $this->userService->getAll(
-                search: request('search')
+                search: $request->validated('search')
             ),
             'columns' => [
                 ['key' => 'name', 'label' => 'Name'],
@@ -34,13 +35,13 @@ class UserController extends Controller
             'showRoute' => 'users.show',
             'editRoute' => 'users.edit',
             'deleteRoute' => 'users.destroy',
-            'filters' => request()->only('search'),
+            'filters' => $request->safe()->only('search'),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Users/Create', [
             'title' => 'User',
             'indexRoute' => 'users.index',
             'storeRoute' => 'users.store',
@@ -61,7 +62,7 @@ class UserController extends Controller
     {
         $user->load('role');
 
-        return Inertia::render('Resources/Show', [
+        return Inertia::render('Users/Show', [
             'title' => 'User',
             'item' => $user,
             'columns' => [
@@ -79,7 +80,7 @@ class UserController extends Controller
     {
         $user->load('role');
 
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Users/Edit', [
             'title' => 'User',
             'indexRoute' => 'users.index',
             'storeRoute' => 'users.store',
@@ -109,7 +110,7 @@ class UserController extends Controller
         try {
             $this->userService->delete($user);
         } catch (QueryException $exception) {
-            if (!str_starts_with((string) $exception->getCode(), '23')) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
                 throw $exception;
             }
 
@@ -136,8 +137,8 @@ class UserController extends Controller
                     'label' => $role->role_name,
                 ]),
             ],
-            ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => !$editing],
-            ['name' => 'password_confirmation', 'label' => 'Confirm Password', 'type' => 'password', 'required' => !$editing],
+            ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => ! $editing],
+            ['name' => 'password_confirmation', 'label' => 'Confirm Password', 'type' => 'password', 'required' => ! $editing],
         ];
     }
 }

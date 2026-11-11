@@ -24,7 +24,7 @@ class AuthorProfileRequest extends FormRequest
                 Rule::unique('author_profiles', 'author_id')
                     ->ignore($profile?->id),
             ],
-            'bio' => ['nullable', 'string'],
+            'bio' => ['nullable', 'string', 'max:10000'],
         ];
     }
 }

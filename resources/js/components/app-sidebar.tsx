@@ -20,7 +20,6 @@ export function AppSidebar() {
         { title: 'Books', url: '/books', icon: BookOpen },
         ...(isAdmin ? [
             { title: 'Authors', url: '/authors', icon: UserRound },
-            { title: 'Author Profiles', url: '/author-profiles', icon: UserRound },
             { title: 'Publishers', url: '/publishers', icon: Building2 },
             { title: 'Genres', url: '/genres', icon: Tags },
             { title: 'Users', url: '/users', icon: Users },

@@ -20,7 +20,7 @@ class ReviewController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('Reviews/Index', [
             'title' => 'Reviews',
             'items' => $this->reviewService->getAll(),
             'columns' => [
@@ -35,11 +35,15 @@ class ReviewController extends Controller
 
     public function create(Request $request): Response
     {
-        return Inertia::render('Resources/Form', [
+        $validated = $request->validate([
+            'book_id' => ['sometimes', 'nullable', 'integer', 'exists:books,id'],
+        ]);
+
+        return Inertia::render('Reviews/Create', [
             'title' => 'Review',
             'indexRoute' => 'books.index',
             'storeRoute' => 'reviews.store',
-            'values' => ['book_id' => $request->integer('book_id') ?: ''],
+            'values' => ['book_id' => $validated['book_id'] ?? ''],
             'fields' => $this->formFields(),
         ]);
     }
@@ -58,7 +62,7 @@ class ReviewController extends Controller
 
     public function edit(Review $review): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Reviews/Edit', [
             'title' => 'Review',
             'indexRoute' => 'books.index',
             'storeRoute' => 'reviews.store',

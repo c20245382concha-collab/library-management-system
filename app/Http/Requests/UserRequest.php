@@ -7,6 +7,13 @@ use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('email'))) {
+            $this->merge(['email' => mb_strtolower(trim($this->input('email')))]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -21,6 +28,7 @@ class UserRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
+                'lowercase',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user?->id),
             ],
@@ -33,6 +41,7 @@ class UserRequest extends FormRequest
                 $user ? 'nullable' : 'required',
                 'string',
                 'min:8',
+                'max:255',
                 'confirmed',
             ],
         ];

@@ -18,7 +18,7 @@ class AuthorProfileController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('AuthorProfiles/Index', [
             'title' => 'Author Profiles',
             'items' => $this->profileService->getAll(),
             'columns' => [
@@ -35,7 +35,7 @@ class AuthorProfileController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('AuthorProfiles/Create', [
             'title' => 'Author Profile',
             'indexRoute' => 'author-profiles.index',
             'storeRoute' => 'author-profiles.store',
@@ -69,7 +69,7 @@ class AuthorProfileController extends Controller
     {
         $authorProfile->load('author');
 
-        return Inertia::render('Resources/Show', [
+        return Inertia::render('AuthorProfiles/Show', [
             'title' => 'Author Profile',
             'item' => $authorProfile,
             'columns' => [
@@ -86,7 +86,7 @@ class AuthorProfileController extends Controller
     {
         $authorProfile->load('author');
 
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('AuthorProfiles/Edit', [
             'title' => 'Author Profile',
             'indexRoute' => 'author-profiles.index',
             'storeRoute' => 'author-profiles.store',

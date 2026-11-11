@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GenreRequest;
+use App\Http\Requests\SearchRequest;
 use App\Models\Genre;
 use App\Services\GenreService;
 use Illuminate\Http\RedirectResponse;
@@ -15,12 +16,12 @@ class GenreController extends Controller
         private GenreService $genreService
     ) {}
 
-    public function index(): Response
+    public function index(SearchRequest $request): Response
     {
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('Genres/Index', [
             'title' => 'Genres',
             'items' => $this->genreService->getAll(
-                search: request('search')
+                search: $request->validated('search')
             ),
             'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
             'indexRoute' => 'genres.index',
@@ -28,13 +29,13 @@ class GenreController extends Controller
             'showRoute' => 'genres.show',
             'editRoute' => 'genres.edit',
             'deleteRoute' => 'genres.destroy',
-            'filters' => request()->only('search'),
+            'filters' => $request->safe()->only('search'),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Genres/Create', [
             'title' => 'Genre',
             'indexRoute' => 'genres.index',
             'storeRoute' => 'genres.store',
@@ -53,7 +54,7 @@ class GenreController extends Controller
 
     public function show(Genre $genre): Response
     {
-        return Inertia::render('Resources/Show', [
+        return Inertia::render('Genres/Show', [
             'title' => 'Genre',
             'item' => $genre,
             'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
@@ -65,7 +66,7 @@ class GenreController extends Controller
 
     public function edit(Genre $genre): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Genres/Edit', [
             'title' => 'Genre',
             'indexRoute' => 'genres.index',
             'storeRoute' => 'genres.store',

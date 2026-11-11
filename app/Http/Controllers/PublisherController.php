@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PublisherRequest;
+use App\Http\Requests\SearchRequest;
 use App\Models\Publisher;
 use App\Services\PublisherService;
 use Illuminate\Database\QueryException;
@@ -16,12 +17,12 @@ class PublisherController extends Controller
         private PublisherService $publisherService
     ) {}
 
-    public function index(): Response
+    public function index(SearchRequest $request): Response
     {
-        return Inertia::render('Resources/Index', [
+        return Inertia::render('Publishers/Index', [
             'title' => 'Publishers',
             'items' => $this->publisherService->getAll(
-                search: request('search')
+                search: $request->validated('search')
             ),
             'columns' => [['key' => 'publisher_name', 'label' => 'Publisher']],
             'indexRoute' => 'publishers.index',
@@ -29,13 +30,13 @@ class PublisherController extends Controller
             'showRoute' => 'publishers.show',
             'editRoute' => 'publishers.edit',
             'deleteRoute' => 'publishers.destroy',
-            'filters' => request()->only('search'),
+            'filters' => $request->safe()->only('search'),
         ]);
     }
 
     public function create(): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Publishers/Create', [
             'title' => 'Publisher',
             'indexRoute' => 'publishers.index',
             'storeRoute' => 'publishers.store',
@@ -55,7 +56,7 @@ class PublisherController extends Controller
 
     public function show(Publisher $publisher): Response
     {
-        return Inertia::render('Resources/Show', [
+        return Inertia::render('Publishers/Show', [
             'title' => 'Publisher',
             'item' => $publisher,
             'columns' => [['key' => 'publisher_name', 'label' => 'Publisher']],
@@ -67,7 +68,7 @@ class PublisherController extends Controller
 
     public function edit(Publisher $publisher): Response
     {
-        return Inertia::render('Resources/Form', [
+        return Inertia::render('Publishers/Edit', [
             'title' => 'Publisher',
             'indexRoute' => 'publishers.index',
             'storeRoute' => 'publishers.store',
@@ -97,7 +98,7 @@ class PublisherController extends Controller
         try {
             $this->publisherService->delete($publisher);
         } catch (QueryException $exception) {
-            if (!str_starts_with((string) $exception->getCode(), '23')) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
                 throw $exception;
             }
 

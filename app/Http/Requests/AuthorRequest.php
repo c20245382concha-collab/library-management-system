@@ -23,6 +23,7 @@ class AuthorRequest extends FormRequest
                 'max:255',
                 Rule::unique('authors', 'name')->ignore($author?->id),
             ],
+            'bio' => ['nullable', 'string', 'max:10000'],
         ];
     }
 }

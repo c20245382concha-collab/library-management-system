@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BorrowingRequest as BorrowingRequestForm;
+use App\Http\Requests\SearchRequest;
 use App\Models\BorrowingRequest;
 use App\Services\BorrowingRequestService;
 use Illuminate\Http\RedirectResponse;
@@ -16,10 +17,10 @@ class BorrowingRequestController extends Controller
         private BorrowingRequestService $borrowingService
     ) {}
 
-    public function index(): Response
+    public function index(SearchRequest $request): Response
     {
-        $search = trim((string) request()->query('search', ''));
-        $search = $search !== '' ? $search : null;
+        $search = $request->validated('search');
+        $search = $search !== null ? trim($search) : null;
 
         return Inertia::render('BorrowingRequests/Index', [
             'requests' => $this->borrowingService->getAll(search: $search),

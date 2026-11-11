@@ -23,7 +23,7 @@ class DashboardTest extends TestCase
         $this->get('/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('dashboard')
+                ->component('Dashboard/Index')
                 ->has('stats')
                 ->has('isAdmin'));
     }

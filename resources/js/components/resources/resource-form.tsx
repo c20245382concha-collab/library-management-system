@@ -20,7 +20,7 @@ interface Field {
     options?: FieldOption[];
 }
 
-interface ResourceFormProps {
+export interface ResourceFormProps {
     title: string;
     indexRoute: string;
     storeRoute: string;

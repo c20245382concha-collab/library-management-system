@@ -4,7 +4,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 type RecordData = Record<string, unknown>;
 
-interface ResourceShowProps {
+export interface ResourceShowProps {
     title: string;
     item: RecordData;
     columns: Array<{ key: string; label: string }>;

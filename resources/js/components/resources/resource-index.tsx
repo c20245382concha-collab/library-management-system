@@ -11,7 +11,7 @@ interface PaginationLink {
     active: boolean;
 }
 
-interface IndexProps {
+export interface ResourceIndexProps {
     title: string;
     description?: string;
     items: Row[] | { data: Row[]; links?: PaginationLink[] };
@@ -20,15 +20,16 @@ interface IndexProps {
     createRoute?: string;
     editRoute?: string;
     showRoute?: string;
+    showLabel?: string;
     deleteRoute?: string;
     filters?: { search?: string };
 }
 
-function rowsFrom(items: IndexProps['items']): Row[] {
+function rowsFrom(items: ResourceIndexProps['items']): Row[] {
     return Array.isArray(items) ? items : items.data;
 }
 
-function linksFrom(items: IndexProps['items']): PaginationLink[] {
+function linksFrom(items: ResourceIndexProps['items']): PaginationLink[] {
     return Array.isArray(items) ? [] : (items.links ?? []);
 }
 
@@ -53,9 +54,10 @@ export default function ResourceIndex({
     createRoute,
     editRoute,
     showRoute,
+    showLabel,
     deleteRoute,
     filters,
-}: IndexProps) {
+}: ResourceIndexProps) {
     const [search, setSearch] = useState(filters?.search ?? '');
     const rows = rowsFrom(items);
     const links = linksFrom(items);
@@ -94,6 +96,7 @@ export default function ResourceIndex({
                         <input
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
+                            maxLength={255}
                             placeholder={`Search ${title.toLowerCase()}`}
                             className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm"
                         />
@@ -116,7 +119,7 @@ export default function ResourceIndex({
                                     {(showRoute || editRoute || deleteRoute) && (
                                         <td className="px-4 py-2">
                                             <div className="flex justify-end gap-1">
-                                                {showRoute && <Link aria-label={`View ${title}`} title="View" href={route(showRoute, row.id as string | number)} className="rounded p-2 hover:bg-muted"><Eye className="size-4" /></Link>}
+                                                {showRoute && <Link aria-label={showLabel ?? `View ${title}`} title={showLabel ?? 'View'} href={route(showRoute, row.id as string | number)} className="rounded p-2 hover:bg-muted"><Eye className="size-4" /></Link>}
                                                 {editRoute && <Link aria-label={`Edit ${title}`} title="Edit" href={route(editRoute, row.id as string | number)} className="rounded p-2 hover:bg-muted"><Pencil className="size-4" /></Link>}
                                                 {deleteRoute && <button aria-label={`Delete ${title}`} title="Delete" onClick={() => deleteItem(row.id)} className="rounded p-2 text-destructive hover:bg-muted"><Trash2 className="size-4" /></button>}
                                             </div>
