@@ -8,16 +8,7 @@ import { BookOpen, Building2, ClipboardList, Folder, LayoutGrid, Star, Tags, Use
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+
 ];
 
 export function AppSidebar() {
