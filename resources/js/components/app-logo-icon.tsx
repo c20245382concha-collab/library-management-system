@@ -1,7 +1,5 @@
-import { HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 
 export default function AppLogoIcon(props: HTMLAttributes<HTMLImageElement>) {
-    return (
-        <img src="/images/logo.png" alt="App Logo" />
-    );
+    return <img src="/images/logo.png" alt="App Logo" {...props} />;
 }
