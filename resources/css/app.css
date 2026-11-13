@@ -8,7 +8,9 @@
 
 @theme {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -58,101 +60,129 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* Base styles */
 @layer base {
+
     *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--color-border);
     }
-}
 
-:root {
-    --background: hsl(0, 0%, 100%);
-    --foreground: hsl(0, 0%, 3.9%);
-    --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(0, 0%, 3.9%);
-    --popover: hsl(0, 0%, 100%);
-    --popover-foreground: hsl(0, 0%, 3.9%);
-    --primary: hsl(0, 0%, 9%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 96.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    --muted-foreground: hsl(0, 0%, 45.1%);
-    --accent: hsl(0, 0%, 96.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
-    --destructive: hsl(0, 84.2%, 60.2%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 92.8%);
-    --input: hsl(0, 0%, 89.8%);
-    --ring: hsl(0, 0%, 3.9%);
-    --chart-1: hsl(12, 76%, 61%);
-    --chart-2: hsl(173, 58%, 39%);
-    --chart-3: hsl(197, 37%, 24%);
-    --chart-4: hsl(43, 74%, 66%);
-    --chart-5: hsl(27, 87%, 67%);
-    --radius: 0.5rem;
-    --sidebar-background: hsl(0, 0%, 98%);
-    --sidebar-foreground: hsl(240, 5.3%, 30%);
-    --sidebar-primary: hsl(0, 0%, 10%);
-    --sidebar-primary-foreground: hsl(0, 0%, 98%);
-    --sidebar-accent: hsl(0, 0%, 94%);
-    --sidebar-accent-foreground: hsl(0, 0%, 30%);
-    --sidebar-border: hsl(0, 0%, 91%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-}
-
-.dark {
-    --background: hsl(0, 0%, 3.9%);
-    --foreground: hsl(0, 0%, 98%);
-    --card: hsl(0, 0%, 3.9%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 3.9%);
-    --popover-foreground: hsl(0, 0%, 98%);
-    --primary: hsl(0, 0%, 98%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 14.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 6.9%);
-    --muted-foreground: hsl(0, 0%, 63.9%);
-    --accent: hsl(0, 0%, 14.9%);
-    --accent-foreground: hsl(0, 0%, 98%);
-    --destructive: hsl(0, 84%, 60%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 14.9%);
-    --input: hsl(0, 0%, 14.9%);
-    --ring: hsl(0, 0%, 83.1%);
-    --chart-1: hsl(220, 70%, 50%);
-    --chart-2: hsl(160, 60%, 45%);
-    --chart-3: hsl(30, 80%, 55%);
-    --chart-4: hsl(280, 65%, 60%);
-    --chart-5: hsl(340, 75%, 55%);
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-accent: hsl(0, 0%, 15.9%);
-    --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-border: hsl(0, 0%, 15.9%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-}
-
-@layer base {
     * {
         @apply border-border;
     }
 
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-sans);
     }
+}
+
+/* =========================================
+   ABCL LIGHT THEME
+========================================= */
+
+:root {
+    color-scheme: light;
+
+    --background: hsl(24, 36%, 97%);
+    --foreground: hsl(340, 25%, 19%);
+
+    --card: hsl(0, 0%, 100%);
+    --card-foreground: hsl(340, 25%, 19%);
+
+    --popover: hsl(0, 0%, 100%);
+    --popover-foreground: hsl(340, 25%, 19%);
+
+    --primary: hsl(340, 43%, 33%);
+    --primary-foreground: hsl(0, 0%, 100%);
+
+    --secondary: hsl(350, 45%, 95%);
+    --secondary-foreground: hsl(340, 35%, 29%);
+
+    --muted: hsl(24, 30%, 94%);
+    --muted-foreground: hsl(340, 12%, 48%);
+
+    --accent: hsl(350, 45%, 94%);
+    --accent-foreground: hsl(340, 43%, 33%);
+
+    --destructive: hsl(0, 72%, 51%);
+    --destructive-foreground: hsl(0, 0%, 100%);
+
+    --border: hsl(18, 25%, 88%);
+    --input: hsl(18, 25%, 88%);
+    --ring: hsl(340, 43%, 33%);
+
+    --chart-1: hsl(340, 43%, 33%);
+    --chart-2: hsl(18, 45%, 55%);
+    --chart-3: hsl(150, 25%, 45%);
+    --chart-4: hsl(38, 70%, 60%);
+    --chart-5: hsl(280, 25%, 55%);
+
+    --radius: 0.75rem;
+
+    /* Keep the ABCL dark sidebar in both themes */
+    --sidebar-background: hsl(0, 0%, 7%);
+    --sidebar-foreground: hsl(0, 0%, 85%);
+    --sidebar-primary: hsl(350, 75%, 94%);
+    --sidebar-primary-foreground: hsl(340, 43%, 33%);
+    --sidebar-accent: hsl(340, 25%, 17%);
+    --sidebar-accent-foreground: hsl(350, 75%, 94%);
+    --sidebar-border: hsl(0, 0%, 16%);
+    --sidebar-ring: hsl(340, 43%, 55%);
+}
+
+/* =========================================
+   ABCL DARK THEME
+========================================= */
+
+.dark {
+    color-scheme: dark;
+
+    --background: hsl(330, 10%, 8%);
+    --foreground: hsl(350, 25%, 93%);
+
+    --card: hsl(330, 9%, 12%);
+    --card-foreground: hsl(350, 25%, 93%);
+
+    --popover: hsl(330, 9%, 12%);
+    --popover-foreground: hsl(350, 25%, 93%);
+
+    --primary: hsl(345, 43%, 66%);
+    --primary-foreground: hsl(330, 15%, 10%);
+
+    --secondary: hsl(330, 12%, 18%);
+    --secondary-foreground: hsl(350, 25%, 93%);
+
+    --muted: hsl(330, 10%, 16%);
+    --muted-foreground: hsl(340, 12%, 68%);
+
+    --accent: hsl(330, 12%, 20%);
+    --accent-foreground: hsl(350, 30%, 94%);
+
+    --destructive: hsl(0, 55%, 42%);
+    --destructive-foreground: hsl(0, 0%, 98%);
+
+    --border: hsl(330, 10%, 23%);
+    --input: hsl(330, 10%, 23%);
+    --ring: hsl(345, 43%, 66%);
+
+    --chart-1: hsl(345, 55%, 68%);
+    --chart-2: hsl(18, 55%, 65%);
+    --chart-3: hsl(150, 35%, 55%);
+    --chart-4: hsl(38, 75%, 65%);
+    --chart-5: hsl(280, 35%, 68%);
+
+    /* Sidebar remains dark, with slightly brighter accents */
+    --sidebar-background: hsl(0, 0%, 6%);
+    --sidebar-foreground: hsl(0, 0%, 85%);
+    --sidebar-primary: hsl(345, 55%, 75%);
+    --sidebar-primary-foreground: hsl(330, 15%, 10%);
+    --sidebar-accent: hsl(330, 12%, 17%);
+    --sidebar-accent-foreground: hsl(350, 30%, 94%);
+    --sidebar-border: hsl(0, 0%, 16%);
+    --sidebar-ring: hsl(345, 43%, 66%);
 }

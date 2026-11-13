@@ -1,6 +1,6 @@
-// Components
+
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, LoaderCircle, Mail, ShieldCheck } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
@@ -17,45 +17,101 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
         post(route('password.email'));
     };
 
     return (
-        <AuthLayout title="Forgot password" description="Enter your email to receive a password reset link">
+        <AuthLayout
+            title="Forgot your password?"
+            description="No worries. We'll help you get back to your library account."
+        >
             <Head title="Forgot password" />
 
-            {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
-
             <div className="space-y-6">
-                <form onSubmit={submit}>
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            name="email"
-                            autoComplete="off"
-                            value={data.email}
-                            autoFocus
-                            onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@example.com"
-                        />
+                {/* Header icon */}
+                <div className="flex justify-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary text-primary shadow-sm">
+                        <BookOpen className="h-8 w-8" strokeWidth={1.7} />
+                    </div>
+                </div>
+
+                <div className="space-y-2 text-center">
+                    <p className="text-sm leading-6 text-muted-foreground">
+                        Enter the email address associated with your account.
+                        If it exists, we'll send you a link to reset your password.
+                    </p>
+                </div>
+
+                {status && (
+                    <div
+                        role="status"
+                        className="flex items-start gap-3 rounded-xl border border-green-700/20 bg-green-700/5 p-4 text-sm text-green-700 dark:text-green-400"
+                    >
+                        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
+                        <p className="leading-5">{status}</p>
+                    </div>
+                )}
+
+                <form onSubmit={submit} className="space-y-5">
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-semibold text-foreground">
+                            Email address
+                        </Label>
+
+                        <div className="relative">
+                            <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                            <Input
+                                id="email"
+                                type="email"
+                                name="email"
+                                autoComplete="email"
+                                autoFocus
+                                required
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                                placeholder="you@example.com"
+                                className="h-12 rounded-xl border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30"
+                            />
+                        </div>
 
                         <InputError message={errors.email} />
                     </div>
 
-                    <div className="my-6 flex items-center justify-start">
-                        <Button className="w-full" disabled={processing}>
-                            {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Email password reset link
-                        </Button>
-                    </div>
+                    <Button
+                        type="submit"
+                        className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
+                        disabled={processing}
+                    >
+                        {processing ? (
+                            <>
+                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                Sending reset link...
+                            </>
+                        ) : (
+                            <>
+                                Send password reset link
+                                <Mail className="ml-2 h-4 w-4" />
+                            </>
+                        )}
+                    </Button>
                 </form>
 
-                <div className="text-muted-foreground space-x-1 text-center text-sm">
-                    <span>Or, return to</span>
-                    <TextLink href={route('login')}>log in</TextLink>
+                <div className="flex items-center justify-center border-t border-border pt-5">
+                    <TextLink
+                        href={route('login')}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to log in
+                    </TextLink>
+                </div>
+
+                <div className="rounded-xl bg-accent/60 px-4 py-3 text-center">
+                    <p className="text-xs leading-5 text-muted-foreground">
+                        <span className="font-semibold text-foreground">Need assistance?</span>
+                        {' '}Contact your library administrator if you continue having trouble accessing your account.
+                    </p>
                 </div>
             </div>
         </AuthLayout>

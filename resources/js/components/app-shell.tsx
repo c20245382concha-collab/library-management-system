@@ -1,3 +1,4 @@
+
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { useState } from 'react';
 
@@ -6,8 +7,15 @@ interface AppShellProps {
     variant?: 'header' | 'sidebar';
 }
 
-export function AppShell({ children, variant = 'header' }: AppShellProps) {
-    const [isOpen, setIsOpen] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('sidebar') !== 'false' : true));
+export function AppShell({
+    children,
+    variant = 'header',
+}: AppShellProps) {
+    const [isOpen, setIsOpen] = useState(() =>
+        typeof window !== 'undefined'
+            ? localStorage.getItem('sidebar') !== 'false'
+            : true,
+    );
 
     const handleSidebarChange = (open: boolean) => {
         setIsOpen(open);
@@ -18,11 +26,20 @@ export function AppShell({ children, variant = 'header' }: AppShellProps) {
     };
 
     if (variant === 'header') {
-        return <div className="flex min-h-screen w-full flex-col">{children}</div>;
+        return (
+            <div className="flex min-h-screen w-full flex-col bg-background text-foreground transition-colors duration-200">
+                {children}
+            </div>
+        );
     }
 
     return (
-        <SidebarProvider defaultOpen={isOpen} open={isOpen} onOpenChange={handleSidebarChange}>
+        <SidebarProvider
+            defaultOpen={isOpen}
+            open={isOpen}
+            onOpenChange={handleSidebarChange}
+            className="min-h-svh bg-background text-foreground"
+        >
             {children}
         </SidebarProvider>
     );
