@@ -29,6 +29,7 @@ const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     const user = usePage<SharedData>().props.auth.user;
+
     const roleName = (
         user.role as { role_name?: string } | undefined
     )?.role_name;
@@ -97,15 +98,16 @@ export function AppSidebar() {
         <Sidebar
             collapsible="icon"
             variant="inset"
-            className="border-r border-[#EBD5D9] bg-[#FFF9F6] dark:border-[#443238] dark:bg-[#20191d]"
+            className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
         >
-            <SidebarHeader className="border-b border-[#F0E1E3] px-3 py-4 dark:border-[#443238]">
+            {/* Header / Logo */}
+            <SidebarHeader className="border-b border-sidebar-border px-3 py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="rounded-xl hover:bg-[#FCE9ED] data-[state=open]:bg-[#FCE9ED] dark:hover:bg-[#39252c] dark:data-[state=open]:bg-[#39252c]"
+                            className="rounded-xl transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
@@ -115,19 +117,22 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
+            {/* Main Navigation */}
             <SidebarContent className="px-2 py-4">
-                <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#B28D98] group-data-[collapsible=icon]:hidden dark:text-[#d3aab1]">
-                    Library menu
+                <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground group-data-[collapsible=icon]:hidden">
+                    Library Menu
                 </div>
 
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-[#F0E1E3] bg-[#FFF9F6] px-2 py-3 dark:border-[#443238] dark:bg-[#20191d]">
+            {/* Footer */}
+            <SidebarFooter className="border-t border-sidebar-border bg-sidebar px-2 py-3">
                 <NavFooter
                     items={footerNavItems}
                     className="mt-auto"
                 />
+
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

@@ -4,7 +4,6 @@ import { Palette, SunMoon, Monitor } from 'lucide-react';
 
 import AppearanceTabs from '@/components/appearance-tabs';
 import { type BreadcrumbItem } from '@/types';
-
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
@@ -22,7 +21,6 @@ export default function Appearance() {
 
             <SettingsLayout>
                 <div className="mx-auto w-full max-w-4xl space-y-8 pb-10">
-
                     {/* Page Header */}
                     <div className="relative overflow-hidden rounded-2xl bg-[#762f43] p-6 text-white shadow-sm sm:p-8">
                         <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full border-[24px] border-white/5" />
@@ -49,20 +47,19 @@ export default function Appearance() {
                     </div>
 
                     {/* Appearance Options */}
-                    <section className="overflow-hidden rounded-2xl border border-[#eadfda] bg-white shadow-sm">
-                        <div className="border-b border-[#f0e7e2] bg-[#fcf8f5] px-6 py-5">
+                    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                        <div className="border-b border-border bg-muted/50 px-6 py-5">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f7e9e9] text-[#762f43]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <SunMoon className="h-5 w-5" />
                                 </div>
 
                                 <div>
-                                    <h2 className="font-serif text-lg font-semibold text-[#492b32]">
+                                    <h2 className="font-serif text-lg font-semibold text-card-foreground">
                                         Display Preferences
                                     </h2>
-                                    <p className="text-sm text-[#927b7d]">
-                                        Choose the theme that works best for
-                                        you.
+                                    <p className="text-sm text-muted-foreground">
+                                        Choose the theme that works best for you.
                                     </p>
                                 </div>
                             </div>
@@ -70,26 +67,26 @@ export default function Appearance() {
 
                         <div className="space-y-6 p-6 sm:p-8">
                             <div>
-                                <h3 className="text-sm font-semibold text-[#573b40]">
+                                <h3 className="text-sm font-semibold text-foreground">
                                     Select your theme
                                 </h3>
-                                <p className="mt-1 text-sm leading-relaxed text-[#927b7d]">
+                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                     Your selection controls the appearance of
                                     the application. You can change it anytime.
                                 </p>
                             </div>
 
-                            {/* Existing Theme Selector */}
                             <AppearanceTabs />
 
-                            <div className="flex items-start gap-3 rounded-xl border border-[#eadfda] bg-[#fcf8f5] p-4">
-                                <Monitor className="mt-0.5 h-5 w-5 shrink-0 text-[#762f43]" />
+                            {/* System Preference Notice */}
+                            <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-4">
+                                <Monitor className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
 
                                 <div>
-                                    <p className="text-sm font-semibold text-[#492b32]">
+                                    <p className="text-sm font-semibold text-foreground">
                                         System preference
                                     </p>
-                                    <p className="mt-1 text-sm leading-relaxed text-[#927b7d]">
+                                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                         You can choose System to automatically
                                         follow your device's light or dark
                                         appearance preference.

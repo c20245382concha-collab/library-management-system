@@ -46,7 +46,6 @@ export default function Profile({
 
             <SettingsLayout>
                 <div className="mx-auto w-full max-w-4xl space-y-8 pb-10">
-
                     {/* Page Header */}
                     <div className="relative overflow-hidden rounded-2xl bg-[#762f43] p-6 text-white shadow-sm sm:p-8">
                         <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full border-[24px] border-white/5" />
@@ -73,18 +72,18 @@ export default function Profile({
                     </div>
 
                     {/* Profile Information */}
-                    <section className="overflow-hidden rounded-2xl border border-[#eadfda] bg-white shadow-sm">
-                        <div className="border-b border-[#f0e7e2] bg-[#fcf8f5] px-6 py-5">
+                    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                        <div className="border-b border-border bg-muted/50 px-6 py-5">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f7e9e9] text-[#762f43]">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <UserRound className="h-5 w-5" />
                                 </div>
 
                                 <div>
-                                    <h2 className="font-serif text-lg font-semibold text-[#492b32]">
+                                    <h2 className="font-serif text-lg font-semibold text-card-foreground">
                                         Personal Information
                                     </h2>
-                                    <p className="text-sm text-[#927b7d]">
+                                    <p className="text-sm text-muted-foreground">
                                         Update your name and email address.
                                     </p>
                                 </div>
@@ -94,19 +93,16 @@ export default function Profile({
                         <form onSubmit={submit} className="space-y-6 p-6 sm:p-8">
                             {/* Name */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="name"
-                                    className="font-medium text-[#573b40]"
-                                >
+                                <Label htmlFor="name" className="font-medium text-foreground">
                                     Full Name
                                 </Label>
 
                                 <div className="relative">
-                                    <UserRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a68c8c]" />
+                                    <UserRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
                                     <Input
                                         id="name"
-                                        className="h-11 rounded-xl border-[#eadfda] bg-[#fdfbf9] pl-10 text-[#492b32] placeholder:text-[#b6a4a1] focus-visible:border-[#762f43] focus-visible:ring-[#762f43]/15"
+                                        className="h-11 rounded-xl border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
                                         value={data.name}
                                         onChange={(e) =>
                                             setData('name', e.target.value)
@@ -122,20 +118,17 @@ export default function Profile({
 
                             {/* Email */}
                             <div className="space-y-2">
-                                <Label
-                                    htmlFor="email"
-                                    className="font-medium text-[#573b40]"
-                                >
+                                <Label htmlFor="email" className="font-medium text-foreground">
                                     Email Address
                                 </Label>
 
                                 <div className="relative">
-                                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a68c8c]" />
+                                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
                                     <Input
                                         id="email"
                                         type="email"
-                                        className="h-11 rounded-xl border-[#eadfda] bg-[#fdfbf9] pl-10 text-[#492b32] placeholder:text-[#b6a4a1] focus-visible:border-[#762f43] focus-visible:ring-[#762f43]/15"
+                                        className="h-11 rounded-xl border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
                                         value={data.email}
                                         onChange={(e) =>
                                             setData('email', e.target.value)
@@ -151,43 +144,37 @@ export default function Profile({
                                 {/* Email Verification */}
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
-                                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                                        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/60 dark:bg-amber-950/30">
                                             <div className="flex items-start gap-3">
-                                                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+                                                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-400" />
 
                                                 <div className="space-y-1">
-                                                    <p className="text-sm font-semibold text-amber-900">
+                                                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
                                                         Email not verified
                                                     </p>
 
-                                                    <p className="text-sm leading-relaxed text-amber-800">
+                                                    <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-300">
                                                         Your email address has
                                                         not been verified yet.
                                                         Please check your inbox
                                                         or{' '}
                                                         <Link
-                                                            href={route(
-                                                                'verification.send',
-                                                            )}
+                                                            href={route('verification.send')}
                                                             method="post"
                                                             as="button"
-                                                            className="font-semibold underline underline-offset-2 hover:text-amber-950"
+                                                            className="font-semibold underline underline-offset-2 hover:text-amber-950 dark:hover:text-amber-100"
                                                         >
-                                                            resend the
-                                                            verification email
+                                                            resend the verification email
                                                         </Link>
                                                         .
                                                     </p>
 
-                                                    {status ===
-                                                        'verification-link-sent' && (
-                                                            <p className="pt-1 text-sm font-medium text-green-700">
-                                                                A new verification
-                                                                link has been sent
-                                                                to your email
-                                                                address.
-                                                            </p>
-                                                        )}
+                                                    {status === 'verification-link-sent' && (
+                                                        <p className="pt-1 text-sm font-medium text-green-700 dark:text-green-400">
+                                                            A new verification link has been sent
+                                                            to your email address.
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -195,10 +182,9 @@ export default function Profile({
                             </div>
 
                             {/* Form Actions */}
-                            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#f0e7e2] pt-6">
-                                <p className="text-xs text-[#a18c89]">
-                                    Make sure your account information is
-                                    accurate.
+                            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
+                                <p className="text-xs text-muted-foreground">
+                                    Make sure your account information is accurate.
                                 </p>
 
                                 <div className="flex items-center gap-3">
@@ -209,7 +195,7 @@ export default function Profile({
                                         leave="transition ease-in-out duration-300"
                                         leaveTo="opacity-0"
                                     >
-                                        <span className="text-sm font-medium text-green-700">
+                                        <span className="text-sm font-medium text-green-700 dark:text-green-400">
                                             Changes saved!
                                         </span>
                                     </Transition>
@@ -217,7 +203,7 @@ export default function Profile({
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="rounded-xl bg-[#762f43] px-6 text-white shadow-sm hover:bg-[#612536]"
+                                        className="rounded-xl bg-primary px-6 text-primary-foreground shadow-sm hover:bg-primary/90"
                                     >
                                         {processing ? 'Saving...' : 'Save Changes'}
                                     </Button>
@@ -227,18 +213,18 @@ export default function Profile({
                     </section>
 
                     {/* Delete Account */}
-                    <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
+                    <section className="rounded-2xl border border-red-200 bg-card p-6 shadow-sm sm:p-8 dark:border-red-900/50">
                         <div className="mb-5">
-                            <h2 className="font-serif text-lg font-semibold text-[#492b32]">
+                            <h2 className="font-serif text-lg font-semibold text-card-foreground">
                                 Account Management
                             </h2>
-                            <p className="mt-1 text-sm text-[#927b7d]">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 Manage the status of your library account.
                             </p>
                         </div>
 
                         <DeleteUser />
-                    </div>
+                    </section>
                 </div>
             </SettingsLayout>
         </AppLayout>

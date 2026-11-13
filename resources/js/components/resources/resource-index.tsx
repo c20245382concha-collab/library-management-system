@@ -65,11 +65,7 @@ function cellValue(row: Row, path: string): string {
             .map((item) => {
                 if (typeof item === 'object' && item !== null) {
                     const record = item as Record<string, unknown>;
-                    return String(
-                        record.genre_name ??
-                        record.name ??
-                        '',
-                    );
+                    return String(record.genre_name ?? record.name ?? '');
                 }
 
                 return String(item);
@@ -80,6 +76,18 @@ function cellValue(row: Row, path: string): string {
 
     if (typeof value === 'object') {
         return '—';
+    }
+
+    if (
+        path === 'profile.bio' ||
+        path === 'author_profile.bio' ||
+        path === 'bio'
+    ) {
+        const biography = String(value);
+
+        return biography.length > 100
+            ? `${biography.slice(0, 100).trim()}...`
+            : biography;
     }
 
     return String(value);
@@ -109,8 +117,7 @@ function formatAvailability(row: Row): {
 
     return availableCopies > 0
         ? {
-            label: `${availableCopies} ${availableCopies === 1 ? 'copy' : 'copies'
-                } available`,
+            label: `${availableCopies} ${availableCopies === 1 ? 'copy' : 'copies'} available`,
             available: true,
         }
         : {
@@ -185,7 +192,7 @@ export default function ResourceIndex({
                             showRoute,
                             row.id as string | number,
                         )}
-                        className="flex size-9 items-center justify-center rounded-xl text-[#80636D] transition hover:bg-[#FCE9ED] hover:text-[#A3264B]"
+                        className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
                     >
                         <Eye className="size-4" />
                     </Link>
@@ -199,7 +206,7 @@ export default function ResourceIndex({
                             editRoute,
                             row.id as string | number,
                         )}
-                        className="flex size-9 items-center justify-center rounded-xl text-[#80636D] transition hover:bg-[#FCE9ED] hover:text-[#A3264B]"
+                        className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
                     >
                         <Pencil className="size-4" />
                     </Link>
@@ -211,7 +218,7 @@ export default function ResourceIndex({
                         aria-label={`Delete ${title}`}
                         title="Delete"
                         onClick={() => deleteItem(row.id)}
-                        className="flex size-9 items-center justify-center rounded-xl text-[#A17D87] transition hover:bg-red-50 hover:text-red-600"
+                        className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
                     >
                         <Trash2 className="size-4" />
                     </button>
@@ -224,9 +231,10 @@ export default function ResourceIndex({
         <AppLayout>
             <Head title={title} />
 
-            <main className="min-h-screen space-y-7 bg-[#FFF9F6] p-4 text-[#481D2A] sm:p-6 lg:p-8">
-                {/* Page heading */}
-                <header className="relative overflow-hidden rounded-[2rem] bg-[#541F32] px-6 py-8 text-white sm:px-9 sm:py-10">
+            <main className="min-h-screen space-y-7 bg-background p-4 text-foreground transition-colors duration-300 sm:p-6 lg:p-8">
+
+                {/* Page Heading */}
+                <header className="relative overflow-hidden rounded-[2rem] bg-[#541F32] px-6 py-8 text-white shadow-sm sm:px-9 sm:py-10">
                     <div className="absolute -right-10 -top-16 size-52 rounded-full border-[30px] border-white/5" />
                     <div className="absolute -bottom-24 right-36 size-48 rounded-full bg-[#A3264B]/30 blur-2xl" />
 
@@ -262,23 +270,25 @@ export default function ResourceIndex({
                     </div>
                 </header>
 
-                {/* Search */}
+                {/* Search and Section Heading */}
                 <section className="space-y-4">
                     <div className="flex flex-wrap items-end justify-between gap-3">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#A3264B]">
-                                Library catalogue
+                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                                Library Catalogue
                             </p>
 
-                            <h2 className="mt-1 font-serif text-2xl sm:text-3xl">
+                            <h2 className="mt-1 font-serif text-2xl text-foreground sm:text-3xl">
                                 {isBookCatalogue
                                     ? 'Find your next read'
                                     : `Browse ${title}`}
                             </h2>
                         </div>
 
-                        <p className="text-sm text-[#9A8289]">
-                            {rows.length} {rows.length === 1 ? 'result' : 'results'} on this page
+                        <p className="text-sm text-muted-foreground">
+                            {rows.length}{' '}
+                            {rows.length === 1 ? 'result' : 'results'} on
+                            this page
                         </p>
                     </div>
 
@@ -287,7 +297,7 @@ export default function ResourceIndex({
                         className="flex w-full max-w-2xl gap-2"
                     >
                         <label className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#A17D87]" />
+                            <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
                             <input
                                 value={search}
@@ -296,28 +306,34 @@ export default function ResourceIndex({
                                 }
                                 maxLength={255}
                                 placeholder={`Search ${title.toLowerCase()}...`}
-                                className="h-12 w-full rounded-2xl border border-[#EBD5D9] bg-white pl-11 pr-4 text-sm text-[#541F32] outline-none transition placeholder:text-[#B49DA4] focus:border-[#A3264B] focus:ring-2 focus:ring-[#A3264B]/10"
+                                className="h-12 w-full rounded-2xl border border-input bg-card pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/20"
                             />
                         </label>
 
                         <button
                             type="submit"
-                            className="inline-flex h-12 items-center gap-2 rounded-2xl bg-[#541F32] px-5 text-sm font-semibold text-white transition hover:bg-[#A3264B]"
+                            className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
                         >
                             <Search className="size-4 sm:hidden" />
-                            <span className="hidden sm:inline">Search</span>
+                            <span className="hidden sm:inline">
+                                Search
+                            </span>
                         </button>
                     </form>
                 </section>
 
-                {/* Book cards */}
+                {/* Book Catalogue */}
                 {isBookCatalogue ? (
                     <section>
                         {rows.length > 0 ? (
                             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {rows.map((row, index) => {
-                                    const image = getCoverImage(row.cover_image);
-                                    const availability = formatAvailability(row);
+                                    const image = getCoverImage(
+                                        row.cover_image,
+                                    );
+
+                                    const availability =
+                                        formatAvailability(row);
 
                                     const genres = Array.isArray(row.genres)
                                         ? row.genres
@@ -327,8 +343,12 @@ export default function ResourceIndex({
                                                     genre !== null
                                                 ) {
                                                     return String(
-                                                        (genre as Record<string, unknown>)
-                                                            .genre_name ?? '',
+                                                        (
+                                                            genre as Record<
+                                                                string,
+                                                                unknown
+                                                            >
+                                                        ).genre_name ?? '',
                                                     );
                                                 }
 
@@ -340,10 +360,10 @@ export default function ResourceIndex({
                                     return (
                                         <article
                                             key={String(row.id ?? index)}
-                                            className="group flex min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#F0DDE1] bg-white shadow-[0_4px_20px_rgba(84,31,50,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(84,31,50,0.10)]"
+                                            className="group flex min-w-0 flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                                         >
-                                            {/* Book cover */}
-                                            <div className="relative flex h-64 items-center justify-center overflow-hidden bg-[#F8ECEE] p-6">
+                                            {/* Book Cover */}
+                                            <div className="relative flex h-64 items-center justify-center overflow-hidden bg-muted p-6">
                                                 {image ? (
                                                     <img
                                                         src={image}
@@ -358,7 +378,10 @@ export default function ResourceIndex({
                                                         <div>
                                                             <BookOpen className="mx-auto size-8 opacity-70" />
                                                             <p className="mt-4 font-serif text-xl leading-tight">
-                                                                {String(row.title ?? 'Library Book')}
+                                                                {String(
+                                                                    row.title ??
+                                                                    'Library Book',
+                                                                )}
                                                             </p>
                                                         </div>
 
@@ -368,11 +391,12 @@ export default function ResourceIndex({
                                                     </div>
                                                 )}
 
+                                                {/* Availability Badge */}
                                                 <div className="absolute right-3 top-3">
                                                     <span
                                                         className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[10px] font-semibold shadow-sm ${availability.available
-                                                            ? 'bg-white text-[#427657]'
-                                                            : 'bg-[#FFF1F0] text-[#B45353]'
+                                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                                            : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300'
                                                             }`}
                                                     >
                                                         <CheckCircle2 className="size-3" />
@@ -383,38 +407,49 @@ export default function ResourceIndex({
                                                 </div>
                                             </div>
 
-                                            {/* Book details */}
+                                            {/* Book Details */}
                                             <div className="flex flex-1 flex-col p-5">
                                                 <div className="flex flex-wrap gap-1.5">
-                                                    {genres.slice(0, 2).map((genre) => (
-                                                        <span
-                                                            key={genre}
-                                                            className="rounded-full bg-[#FCE9ED] px-2.5 py-1 text-[10px] font-semibold text-[#A3264B]"
-                                                        >
-                                                            {genre}
-                                                        </span>
-                                                    ))}
+                                                    {genres
+                                                        .slice(0, 2)
+                                                        .map((genre) => (
+                                                            <span
+                                                                key={genre}
+                                                                className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold text-accent-foreground"
+                                                            >
+                                                                {genre}
+                                                            </span>
+                                                        ))}
                                                 </div>
 
-                                                <h3 className="mt-3 line-clamp-2 font-serif text-xl leading-snug text-[#541F32]">
-                                                    {String(row.title ?? 'Untitled Book')}
+                                                <h3 className="mt-3 line-clamp-2 font-serif text-xl leading-snug text-card-foreground">
+                                                    {String(
+                                                        row.title ??
+                                                        'Untitled Book',
+                                                    )}
                                                 </h3>
 
-                                                <p className="mt-2 text-sm text-[#8D7078]">
+                                                <p className="mt-2 text-sm text-muted-foreground">
                                                     {row.author &&
                                                         typeof row.author === 'object'
                                                         ? `By ${String((row.author as Record<string, unknown>).name ?? 'Unknown author')}`
                                                         : 'Author information unavailable'}
                                                 </p>
 
-                                                <div className="mt-4 space-y-1 border-t border-[#F3E8E9] pt-3 text-xs text-[#9A8289]">
+                                                <div className="mt-4 space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
                                                     <p>
                                                         Publisher:{' '}
-                                                        <span className="font-medium text-[#76545F]">
+                                                        <span className="font-medium text-foreground">
                                                             {row.publisher &&
                                                                 typeof row.publisher === 'object'
                                                                 ? String(
-                                                                    (row.publisher as Record<string, unknown>).publisher_name ?? '—',
+                                                                    (
+                                                                        row.publisher as Record<
+                                                                            string,
+                                                                            unknown
+                                                                        >
+                                                                    ).publisher_name ??
+                                                                    '—',
                                                                 )
                                                                 : '—'}
                                                         </span>
@@ -422,8 +457,11 @@ export default function ResourceIndex({
 
                                                     <p>
                                                         Publication year:{' '}
-                                                        <span className="font-medium text-[#76545F]">
-                                                            {String(row.publication_year ?? '—')}
+                                                        <span className="font-medium text-foreground">
+                                                            {String(
+                                                                row.publication_year ??
+                                                                '—',
+                                                            )}
                                                         </span>
                                                     </p>
 
@@ -432,20 +470,21 @@ export default function ResourceIndex({
                                                     </p>
                                                 </div>
 
-                                                <div className="mt-auto flex items-center justify-between gap-2 border-t border-[#F3E8E9] pt-3">
+                                                {/* Card Actions */}
+                                                <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
                                                     {showRoute ? (
                                                         <Link
                                                             href={route(
                                                                 showRoute,
                                                                 row.id as string | number,
                                                             )}
-                                                            className="inline-flex items-center gap-2 text-sm font-semibold text-[#A3264B] transition hover:text-[#541F32]"
+                                                            className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:opacity-75"
                                                         >
                                                             View details
                                                             <ArrowRight className="size-4" />
                                                         </Link>
                                                     ) : (
-                                                        <span className="text-xs font-medium text-[#A17D87]">
+                                                        <span className="text-xs font-medium text-muted-foreground">
                                                             Book details
                                                         </span>
                                                     )}
@@ -458,27 +497,29 @@ export default function ResourceIndex({
                                 })}
                             </div>
                         ) : (
-                            <div className="rounded-3xl border border-dashed border-[#E3C6CD] bg-white px-6 py-16 text-center">
-                                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#FCE9ED] text-[#A3264B]">
+                            /* Empty Book Catalogue */
+                            <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
+                                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
                                     <BookOpen className="size-7" />
                                 </div>
 
-                                <h3 className="mt-5 font-serif text-2xl text-[#541F32]">
+                                <h3 className="mt-5 font-serif text-2xl text-foreground">
                                     No books found
                                 </h3>
 
-                                <p className="mt-2 text-sm text-[#9A8289]">
-                                    Try another search or check back later for new additions.
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    Try another search or check back later
+                                    for new additions.
                                 </p>
                             </div>
                         )}
                     </section>
                 ) : (
-                    /* Generic resource table */
-                    <section className="overflow-hidden rounded-2xl border border-[#F0DDE1] bg-white shadow-[0_4px_20px_rgba(84,31,50,0.04)]">
+                    /* Generic Resource Table */
+                    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[640px] text-left text-sm">
-                                <thead className="border-b border-[#F0DDE1] bg-[#FCF3F3] text-[#80636D]">
+                                <thead className="border-b border-border bg-muted text-muted-foreground">
                                     <tr>
                                         {columns.map((column) => (
                                             <th
@@ -497,16 +538,16 @@ export default function ResourceIndex({
                                     </tr>
                                 </thead>
 
-                                <tbody className="divide-y divide-[#F3E8E9]">
+                                <tbody className="divide-y divide-border">
                                     {rows.map((row, index) => (
                                         <tr
                                             key={String(row.id ?? index)}
-                                            className="transition hover:bg-[#FFFAFA]"
+                                            className="transition hover:bg-accent/50"
                                         >
                                             {columns.map((column) => (
                                                 <td
                                                     key={column.key}
-                                                    className="px-5 py-4 text-[#76545F]"
+                                                    className="px-5 py-4 text-card-foreground"
                                                 >
                                                     {cellValue(row, column.key)}
                                                 </td>
@@ -527,9 +568,11 @@ export default function ResourceIndex({
                                             <td
                                                 colSpan={
                                                     columns.length +
-                                                    (showRoute || editRoute || deleteRoute ? 1 : 0)
+                                                    (showRoute || editRoute || deleteRoute
+                                                        ? 1
+                                                        : 0)
                                                 }
-                                                className="px-5 py-16 text-center text-[#9A8289]"
+                                                className="px-5 py-16 text-center text-muted-foreground"
                                             >
                                                 No records found.
                                             </td>
@@ -553,12 +596,9 @@ export default function ResourceIndex({
                                 href={link.url ?? route(indexRoute)}
                                 preserveScroll
                                 className={`flex min-h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-medium transition ${link.active
-                                    ? 'border-[#541F32] bg-[#541F32] text-white'
-                                    : 'border-[#EBD5D9] bg-white text-[#76545F] hover:border-[#A3264B] hover:bg-[#FCE9ED] hover:text-[#A3264B]'
-                                    } ${!link.url
-                                        ? 'pointer-events-none opacity-40'
-                                        : ''
-                                    }`}
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-card text-muted-foreground hover:border-primary hover:bg-accent hover:text-accent-foreground'
+                                    } ${!link.url ? 'pointer-events-none opacity-40' : ''}`}
                             >
                                 {link.label
                                     .replace(/&laquo;|&raquo;/g, '')

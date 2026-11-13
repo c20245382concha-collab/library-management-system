@@ -124,15 +124,15 @@
 
     --radius: 0.75rem;
 
-    /* Keep the ABCL dark sidebar in both themes */
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 85%);
-    --sidebar-primary: hsl(350, 75%, 94%);
-    --sidebar-primary-foreground: hsl(340, 43%, 33%);
-    --sidebar-accent: hsl(340, 25%, 17%);
-    --sidebar-accent-foreground: hsl(350, 75%, 94%);
-    --sidebar-border: hsl(0, 0%, 16%);
-    --sidebar-ring: hsl(340, 43%, 55%);
+    /* Light sidebar */
+    --sidebar-background: hsl(0, 0%, 100%);
+    --sidebar-foreground: hsl(340, 25%, 19%);
+    --sidebar-primary: hsl(340, 43%, 33%);
+    --sidebar-primary-foreground: hsl(0, 0%, 100%);
+    --sidebar-accent: hsl(350, 45%, 95%);
+    --sidebar-accent-foreground: hsl(340, 43%, 33%);
+    --sidebar-border: hsl(18, 25%, 88%);
+    --sidebar-ring: hsl(340, 43%, 33%);
 }
 
 /* =========================================
