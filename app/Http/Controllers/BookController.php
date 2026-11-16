@@ -4,70 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BookRequest;
 use App\Http\Requests\SearchRequest;
-use App\Models\Author;
 use App\Models\Book;
-use App\Models\Genre;
-use App\Models\Publisher;
 use App\Models\User;
+use App\Presenters\BookPresenter;
 use App\Services\BookService;
 use DomainException;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class BookController extends Controller
 {
     public function __construct(
-        private BookService $bookService
-    ) {
-    }
+        private BookService $bookService,
+        private BookPresenter $bookPresenter
+    ) {}
 
     public function index(SearchRequest $request): Response
     {
         $user = Auth::user();
         $isAdmin = $user instanceof User && $user->isAdmin();
-        Book::with(['author', 'publisher', 'genres'])->paginate(12);
 
-        return Inertia::render('Books/Index', [
-            'title' => 'Books',
-            'items' => $this->bookService->getAll(
-                search: $request->validated('search')
-            ),
-            'columns' => [
-                ['key' => 'title', 'label' => 'Title'],
-                ['key' => 'author.name', 'label' => 'Author'],
-                ['key' => 'publisher.publisher_name', 'label' => 'Publisher'],
-                ['key' => 'available_copies', 'label' => 'Available'],
-                ['key' => 'total_copies', 'label' => 'Copies'],
-            ],
-            'indexRoute' => 'books.index',
-            'createRoute' => $isAdmin ? 'books.create' : null,
-            'editRoute' => $isAdmin ? 'books.edit' : null,
-            'deleteRoute' => $isAdmin ? 'books.destroy' : null,
-            'showRoute' => 'books.show',
-            'filters' => $request->safe()->only('search'),
-        ]);
+        $books = $this->bookService->getAll(
+            search: $request->validated('search')
+        );
+
+        return $this->bookPresenter->index(
+            $books,
+            $request->safe()->only('search'),
+            $isAdmin
+        );
     }
 
     public function create(): Response
     {
-        return Inertia::render('Books/Create', [
-            'title' => 'Book',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'books.store',
-            'fields' => $this->formFields(),
-        ]);
+        $options = $this->bookService->getFormOptions();
+
+        return $this->bookPresenter->create($options);
     }
 
     public function store(BookRequest $request): RedirectResponse
     {
         $this->bookService->create($request->validated());
 
-        return redirect()
-            ->route('books.index')
-            ->with('success', 'Book created successfully.');
+        return $this->bookPresenter->created();
     }
 
     public function show(Book $book): Response
@@ -75,45 +55,19 @@ class BookController extends Controller
         $user = Auth::user();
         $isMember = $user instanceof User && $user->isMember();
 
-        $book->load([
-            'author',
-            'publisher',
-            'genres',
-            'reviews.user',
-        ]);
-
-        return Inertia::render('Books/Show', [
-            'book' => $book,
-            'canRequest' => $isMember,
-            'canReview' => $isMember,
-            'currentUserId' => Auth::id(),
-        ]);
+        return $this->bookPresenter->show(
+            $this->bookService->getForShow($book),
+            $isMember,
+            Auth::id()
+        );
     }
 
     public function edit(Book $book): Response
     {
-        $book->load('genres');
+        $book = $this->bookService->getForEdit($book);
+        $options = $this->bookService->getFormOptions();
 
-        return Inertia::render('Books/Edit', [
-            'title' => 'Book',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'books.store',
-            'updateRoute' => 'books.update',
-            'recordId' => $book->id,
-            'values' => $book->only([
-                'author_id',
-                'publisher_id',
-                'title',
-                'isbn',
-                'edition',
-                'publication_year',
-                'language',
-                'description',
-                'cover_image',
-                'total_copies',
-            ]) + ['genre_ids' => $book->genres->modelKeys()],
-            'fields' => $this->formFields(),
-        ]);
+        return $this->bookPresenter->edit($book, $options);
     }
 
     public function update(
@@ -126,12 +80,10 @@ class BookController extends Controller
                 $request->validated()
             );
         } catch (DomainException $exception) {
-            return back()->with('error', $exception->getMessage());
+            return $this->bookPresenter->failed($exception->getMessage());
         }
 
-        return redirect()
-            ->route('books.index')
-            ->with('success', 'Book updated successfully.');
+        return $this->bookPresenter->updated();
     }
 
     public function destroy(Book $book): RedirectResponse
@@ -139,64 +91,9 @@ class BookController extends Controller
         try {
             $this->bookService->delete($book);
         } catch (DomainException $exception) {
-            return back()->with('error', $exception->getMessage());
-        } catch (QueryException $exception) {
-            if (!str_starts_with((string) $exception->getCode(), '23')) {
-                throw $exception;
-            }
-
-            return back()->with('error', 'This book cannot be deleted while borrowing requests are linked to it.');
+            return $this->bookPresenter->failed($exception->getMessage());
         }
 
-        return redirect()
-            ->route('books.index')
-            ->with('success', 'Book deleted successfully.');
-    }
-
-    private function formFields(): array
-    {
-        return [
-            [
-                'name' => 'title',
-                'label' => 'Title',
-                'required' => true,
-            ],
-            [
-                'name' => 'author_id',
-                'label' => 'Author',
-                'type' => 'select',
-                'required' => true,
-                'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn($author) => [
-                    'value' => $author->id,
-                    'label' => $author->name,
-                ]),
-            ],
-            [
-                'name' => 'publisher_id',
-                'label' => 'Publisher',
-                'type' => 'select',
-                'required' => true,
-                'options' => Publisher::orderBy('publisher_name')->get(['id', 'publisher_name'])->map(fn($publisher) => [
-                    'value' => $publisher->id,
-                    'label' => $publisher->publisher_name,
-                ]),
-            ],
-            ['name' => 'isbn', 'label' => 'ISBN'],
-            ['name' => 'edition', 'label' => 'Edition'],
-            ['name' => 'publication_year', 'label' => 'Publication Year', 'type' => 'number', 'min' => 1000, 'max' => now()->year],
-            ['name' => 'language', 'label' => 'Language', 'required' => true],
-            ['name' => 'description', 'label' => 'Description', 'type' => 'textarea'],
-            ['name' => 'cover_image', 'label' => 'Cover Image URL'],
-            ['name' => 'total_copies', 'label' => 'Total Copies', 'type' => 'number', 'required' => true, 'min' => 1],
-            [
-                'name' => 'genre_ids',
-                'label' => 'Genres',
-                'type' => 'multi',
-                'options' => Genre::orderBy('genre_name')->get(['id', 'genre_name'])->map(fn($genre) => [
-                    'value' => $genre->id,
-                    'label' => $genre->genre_name,
-                ]),
-            ],
-        ];
+        return $this->bookPresenter->deleted();
     }
 }

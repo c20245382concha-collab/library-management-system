@@ -3,26 +3,27 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
-use App\Models\User;
+use App\Http\Requests\Auth\RegistrationRequest;
+use App\Presenters\AuthPresenter;
+use App\Services\UserService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
+    public function __construct(
+        private UserService $userService,
+        private AuthPresenter $presenter
+    ) {}
+
     /**
      * Show the registration page.
      */
     public function create(): Response
     {
-        return Inertia::render('auth/register');
+        return $this->presenter->registration();
     }
 
     /**
@@ -30,29 +31,14 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegistrationRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', 'max:255', Rules\Password::defaults()],
-        ]);
-
-        $memberRole = Role::query()->firstOrCreate([
-            'role_name' => 'Member/Student',
-        ]);
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => $memberRole->id,
-        ]);
+        $user = $this->userService->register($request->validated());
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return to_route('dashboard');
+        return $this->presenter->registered();
     }
 }

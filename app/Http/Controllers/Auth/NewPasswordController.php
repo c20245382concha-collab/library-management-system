@@ -3,28 +3,29 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\NewPasswordRequest;
+use App\Presenters\AuthPresenter;
+use App\Services\UserService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class NewPasswordController extends Controller
 {
+    public function __construct(
+        private UserService $userService,
+        private AuthPresenter $presenter
+    ) {}
+
     /**
      * Show the password reset page.
      */
     public function create(Request $request): Response
     {
-        return Inertia::render('auth/reset-password', [
-            'email' => $request->email,
-            'token' => $request->route('token'),
-        ]);
+        return $this->presenter->resetPassword($request->email, $request->route('token'));
     }
 
     /**
@@ -32,14 +33,9 @@ class NewPasswordController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(NewPasswordRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'token' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'confirmed', 'max:255', Rules\Password::defaults()],
-            'password_confirmation' => ['required', 'string', 'max:255'],
-        ]);
+        $validated = $request->validated();
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
@@ -47,10 +43,7 @@ class NewPasswordController extends Controller
         $status = Password::reset(
             $validated,
             function ($user) use ($validated) {
-                $user->forceFill([
-                    'password' => Hash::make($validated['password']),
-                    'remember_token' => Str::random(60),
-                ])->save();
+                $this->userService->resetPassword($user, $validated['password']);
 
                 event(new PasswordReset($user));
             }
@@ -60,7 +53,7 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PasswordReset) {
-            return to_route('login')->with('status', __($status));
+            return $this->presenter->passwordReset($status);
         }
 
         throw ValidationException::withMessages([

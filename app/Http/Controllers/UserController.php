@@ -4,91 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserRequest;
-use App\Models\Role;
 use App\Models\User;
+use App\Presenters\UserPresenter;
 use App\Services\UserService;
-use Illuminate\Database\QueryException;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
     public function __construct(
-        private UserService $userService
+        private UserService $userService,
+        private UserPresenter $presenter
     ) {}
 
     public function index(SearchRequest $request): Response
     {
-        return Inertia::render('Users/Index', [
-            'title' => 'Users',
-            'items' => $this->userService->getAll(
-                search: $request->validated('search')
-            ),
-            'columns' => [
-                ['key' => 'name', 'label' => 'Name'],
-                ['key' => 'email', 'label' => 'Email'],
-                ['key' => 'role.role_name', 'label' => 'Role'],
-            ],
-            'indexRoute' => 'users.index',
-            'createRoute' => 'users.create',
-            'showRoute' => 'users.show',
-            'editRoute' => 'users.edit',
-            'deleteRoute' => 'users.destroy',
-            'filters' => $request->safe()->only('search'),
-        ]);
+        $users = $this->userService->getAll(
+            search: $request->validated('search')
+        );
+
+        return $this->presenter->index($users, $request->safe()->only('search'));
     }
 
     public function create(): Response
     {
-        return Inertia::render('Users/Create', [
-            'title' => 'User',
-            'indexRoute' => 'users.index',
-            'storeRoute' => 'users.store',
-            'fields' => $this->formFields(),
-        ]);
+        return $this->presenter->create($this->userService->getRoleOptions());
     }
 
     public function store(UserRequest $request): RedirectResponse
     {
         $this->userService->create($request->validated());
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User created successfully.');
+        return $this->presenter->created();
     }
 
     public function show(User $user): Response
     {
-        $user->load('role');
-
-        return Inertia::render('Users/Show', [
-            'title' => 'User',
-            'item' => $user,
-            'columns' => [
-                ['key' => 'name', 'label' => 'Name'],
-                ['key' => 'email', 'label' => 'Email'],
-                ['key' => 'role.role_name', 'label' => 'Role'],
-            ],
-            'indexRoute' => 'users.index',
-            'editRoute' => 'users.edit',
-            'deleteRoute' => 'users.destroy',
-        ]);
+        return $this->presenter->show($this->userService->getForShow($user));
     }
 
     public function edit(User $user): Response
     {
-        $user->load('role');
+        $user = $this->userService->getForEdit($user);
 
-        return Inertia::render('Users/Edit', [
-            'title' => 'User',
-            'indexRoute' => 'users.index',
-            'storeRoute' => 'users.store',
-            'updateRoute' => 'users.update',
-            'recordId' => $user->id,
-            'values' => $user->only('name', 'email', 'role_id'),
-            'fields' => $this->formFields(editing: true),
-        ]);
+        return $this->presenter->edit(
+            $user,
+            $this->userService->getRoleOptions()
+        );
     }
 
     public function update(
@@ -100,45 +63,17 @@ class UserController extends Controller
             $request->validated()
         );
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User updated successfully.');
+        return $this->presenter->updated();
     }
 
     public function destroy(User $user): RedirectResponse
     {
         try {
             $this->userService->delete($user);
-        } catch (QueryException $exception) {
-            if (! str_starts_with((string) $exception->getCode(), '23')) {
-                throw $exception;
-            }
-
-            return back()->with('error', 'This user cannot be deleted while borrowing records are linked to them.');
+        } catch (DomainException $exception) {
+            return $this->presenter->deletionFailed($exception->getMessage());
         }
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User deleted successfully.');
-    }
-
-    private function formFields(bool $editing = false): array
-    {
-        return [
-            ['name' => 'name', 'label' => 'Name', 'required' => true],
-            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true],
-            [
-                'name' => 'role_id',
-                'label' => 'Role',
-                'type' => 'select',
-                'required' => true,
-                'options' => Role::orderBy('role_name')->get(['id', 'role_name'])->map(fn ($role) => [
-                    'value' => $role->id,
-                    'label' => $role->role_name,
-                ]),
-            ],
-            ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => ! $editing],
-            ['name' => 'password_confirmation', 'label' => 'Confirm Password', 'type' => 'password', 'required' => ! $editing],
-        ];
+        return $this->presenter->deleted();
     }
 }

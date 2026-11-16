@@ -5,36 +5,36 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BorrowingRequest as BorrowingRequestForm;
 use App\Http\Requests\SearchRequest;
 use App\Models\BorrowingRequest;
+use App\Presenters\BorrowingRequestPresenter;
 use App\Services\BorrowingRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class BorrowingRequestController extends Controller
 {
     public function __construct(
-        private BorrowingRequestService $borrowingService
+        private BorrowingRequestService $borrowingService,
+        private BorrowingRequestPresenter $presenter
     ) {}
 
     public function index(SearchRequest $request): Response
     {
-        $search = $request->validated('search');
-        $search = $search !== null ? trim($search) : null;
+        $requests = $this->borrowingService->getAll(
+            search: $request->validated('search')
+        );
 
-        return Inertia::render('BorrowingRequests/Index', [
-            'requests' => $this->borrowingService->getAll(search: $search),
-            'filters' => ['search' => $search],
-        ]);
+        return $this->presenter->index(
+            $requests,
+            $request->safe()->only('search')
+        );
     }
 
     public function myRequests(): Response
     {
-        return Inertia::render('BorrowingRequests/MyRequests', [
-            'requests' => $this->borrowingService->getUserRequests(
-                (int) Auth::id()
-            ),
-        ]);
+        return $this->presenter->myRequests(
+            $this->borrowingService->getUserRequests((int) Auth::id())
+        );
     }
 
     public function store(
@@ -45,10 +45,7 @@ class BorrowingRequestController extends Controller
             $request->validated()
         );
 
-        return back()->with(
-            'success',
-            'Borrowing request submitted successfully.'
-        );
+        return $this->presenter->submitted();
     }
 
     public function approve(
@@ -59,10 +56,7 @@ class BorrowingRequestController extends Controller
             (int) Auth::id()
         );
 
-        return back()->with(
-            'success',
-            'Borrowing request approved successfully.'
-        );
+        return $this->presenter->approved();
     }
 
     public function reject(
@@ -73,10 +67,7 @@ class BorrowingRequestController extends Controller
             (int) Auth::id()
         );
 
-        return back()->with(
-            'success',
-            'Borrowing request rejected successfully.'
-        );
+        return $this->presenter->rejected();
     }
 
     public function issue(
@@ -84,10 +75,7 @@ class BorrowingRequestController extends Controller
     ): RedirectResponse {
         $this->borrowingService->issue($borrowingRequest);
 
-        return back()->with(
-            'success',
-            'Book issued successfully.'
-        );
+        return $this->presenter->issued();
     }
 
     public function returnBook(
@@ -95,9 +83,6 @@ class BorrowingRequestController extends Controller
     ): RedirectResponse {
         $this->borrowingService->returnBook($borrowingRequest);
 
-        return back()->with(
-            'success',
-            'Book returned successfully.'
-        );
+        return $this->presenter->returned();
     }
 }

@@ -5,76 +5,47 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GenreRequest;
 use App\Http\Requests\SearchRequest;
 use App\Models\Genre;
+use App\Presenters\GenrePresenter;
 use App\Services\GenreService;
 use Illuminate\Http\RedirectResponse;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class GenreController extends Controller
 {
     public function __construct(
-        private GenreService $genreService
+        private GenreService $genreService,
+        private GenrePresenter $presenter
     ) {}
 
     public function index(SearchRequest $request): Response
     {
-        return Inertia::render('Genres/Index', [
-            'title' => 'Genres',
-            'items' => $this->genreService->getAll(
-                search: $request->validated('search')
-            ),
-            'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
-            'indexRoute' => 'genres.index',
-            'createRoute' => 'genres.create',
-            'showRoute' => 'genres.show',
-            'editRoute' => 'genres.edit',
-            'deleteRoute' => 'genres.destroy',
-            'filters' => $request->safe()->only('search'),
-        ]);
+        $genres = $this->genreService->getAll(
+            search: $request->validated('search')
+        );
+
+        return $this->presenter->index($genres, $request->safe()->only('search'));
     }
 
     public function create(): Response
     {
-        return Inertia::render('Genres/Create', [
-            'title' => 'Genre',
-            'indexRoute' => 'genres.index',
-            'storeRoute' => 'genres.store',
-            'fields' => [['name' => 'genre_name', 'label' => 'Genre Name', 'required' => true]],
-        ]);
+        return $this->presenter->create();
     }
 
     public function store(GenreRequest $request): RedirectResponse
     {
         $this->genreService->create($request->validated());
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre created successfully.');
+        return $this->presenter->created();
     }
 
     public function show(Genre $genre): Response
     {
-        return Inertia::render('Genres/Show', [
-            'title' => 'Genre',
-            'item' => $genre,
-            'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
-            'indexRoute' => 'genres.index',
-            'editRoute' => 'genres.edit',
-            'deleteRoute' => 'genres.destroy',
-        ]);
+        return $this->presenter->show($genre);
     }
 
     public function edit(Genre $genre): Response
     {
-        return Inertia::render('Genres/Edit', [
-            'title' => 'Genre',
-            'indexRoute' => 'genres.index',
-            'storeRoute' => 'genres.store',
-            'updateRoute' => 'genres.update',
-            'recordId' => $genre->id,
-            'values' => $genre->only('genre_name'),
-            'fields' => [['name' => 'genre_name', 'label' => 'Genre Name', 'required' => true]],
-        ]);
+        return $this->presenter->edit($genre);
     }
 
     public function update(
@@ -86,17 +57,13 @@ class GenreController extends Controller
             $request->validated()
         );
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre updated successfully.');
+        return $this->presenter->updated();
     }
 
     public function destroy(Genre $genre): RedirectResponse
     {
         $this->genreService->delete($genre);
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre deleted successfully.');
+        return $this->presenter->deleted();
     }
 }

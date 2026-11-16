@@ -14,6 +14,8 @@ class BorrowingRequestService
         int $perPage = 10,
         ?string $search = null
     ): LengthAwarePaginator {
+        $search = $search !== null ? trim($search) : null;
+
         return BorrowingRequest::query()
             ->with(['user', 'book', 'approver'])
             ->when($search, function ($query, $search) {

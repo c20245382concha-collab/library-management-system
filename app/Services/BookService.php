@@ -3,8 +3,12 @@
 namespace App\Services;
 
 use App\Models\Book;
+use App\Models\Genre;
+use App\Models\Publisher;
+use App\Models\Author;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class BookService
 {
@@ -26,6 +30,48 @@ class BookService
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    public function getForShow(Book $book): Book
+    {
+        return $book->load([
+            'author',
+            'publisher',
+            'genres',
+            'reviews.user',
+        ]);
+    }
+
+    public function getForEdit(Book $book): Book
+    {
+        return $book->load('genres');
+    }
+
+    public function getFormOptions(): array
+    {
+        return [
+            'authors' => Author::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn ($author) => [
+                    'value' => $author->id,
+                    'label' => $author->name,
+                ]),
+            'publishers' => Publisher::query()
+                ->orderBy('publisher_name')
+                ->get(['id', 'publisher_name'])
+                ->map(fn ($publisher) => [
+                    'value' => $publisher->id,
+                    'label' => $publisher->publisher_name,
+                ]),
+            'genres' => Genre::query()
+                ->orderBy('genre_name')
+                ->get(['id', 'genre_name'])
+                ->map(fn ($genre) => [
+                    'value' => $genre->id,
+                    'label' => $genre->genre_name,
+                ]),
+        ];
     }
 
     public function create(array $data): Book
@@ -86,19 +132,30 @@ class BookService
 
     public function delete(Book $book): void
     {
-        DB::transaction(function () use ($book) {
-            $book = Book::query()
-                ->lockForUpdate()
-                ->findOrFail($book->id);
+        try {
+            DB::transaction(function () use ($book) {
+                $book = Book::query()
+                    ->lockForUpdate()
+                    ->findOrFail($book->id);
 
-            if ($book->total_copies !== $book->available_copies) {
-                throw new \DomainException(
-                    'This book cannot be deleted while copies are borrowed.'
-                );
+                if ($book->total_copies !== $book->available_copies) {
+                    throw new \DomainException(
+                        'This book cannot be deleted while copies are borrowed.'
+                    );
+                }
+
+                $book->delete();
+            });
+        } catch (QueryException $exception) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
+                throw $exception;
             }
 
-            $book->delete();
-        });
+            throw new \DomainException(
+                'This book cannot be deleted while borrowing requests are linked to it.',
+                previous: $exception
+            );
+        }
     }
 
     private function sanitize(array $data): array
