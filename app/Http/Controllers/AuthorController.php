@@ -15,7 +15,8 @@ class AuthorController extends Controller
 {
     public function __construct(
         private AuthorService $authorService
-    ) {}
+    ) {
+    }
 
     public function index(SearchRequest $request): Response
     {
@@ -28,12 +29,6 @@ class AuthorController extends Controller
                 ['key' => 'name', 'label' => 'Name'],
                 ['key' => 'profile.bio', 'label' => 'Biography'],
             ],
-            'indexRoute' => 'authors.index',
-            'createRoute' => 'authors.create',
-            'showRoute' => 'authors.show',
-            'showLabel' => 'View profile',
-            'editRoute' => 'authors.edit',
-            'deleteRoute' => 'authors.destroy',
             'filters' => $request->safe()->only('search'),
         ]);
     }
@@ -42,12 +37,7 @@ class AuthorController extends Controller
     {
         return Inertia::render('Authors/Create', [
             'title' => 'Author',
-            'indexRoute' => 'authors.index',
-            'storeRoute' => 'authors.store',
-            'fields' => [
-                ['name' => 'name', 'label' => 'Name', 'required' => true],
-                ['name' => 'bio', 'label' => 'Biography', 'type' => 'textarea'],
-            ],
+            'resource' => 'authors',
         ]);
     }
 
@@ -64,7 +54,7 @@ class AuthorController extends Controller
     {
         $author->load([
             'profile',
-            'books' => fn ($query) => $query
+            'books' => fn($query) => $query
                 ->select(['id', 'author_id', 'title', 'publication_year'])
                 ->orderBy('title'),
         ]);
@@ -79,16 +69,10 @@ class AuthorController extends Controller
     {
         return Inertia::render('Authors/Edit', [
             'title' => 'Author',
-            'indexRoute' => 'authors.index',
-            'storeRoute' => 'authors.store',
-            'updateRoute' => 'authors.update',
+            'resource' => 'authors',
             'recordId' => $author->id,
             'values' => $author->only('name') + [
                 'bio' => $author->profile?->bio,
-            ],
-            'fields' => [
-                ['name' => 'name', 'label' => 'Name', 'required' => true],
-                ['name' => 'bio', 'label' => 'Biography', 'type' => 'textarea'],
             ],
         ]);
     }
@@ -112,11 +96,14 @@ class AuthorController extends Controller
         try {
             $this->authorService->delete($author);
         } catch (QueryException $exception) {
-            if (! str_starts_with((string) $exception->getCode(), '23')) {
+            if (!str_starts_with((string) $exception->getCode(), '23')) {
                 throw $exception;
             }
 
-            return back()->with('error', 'This author cannot be deleted while books are linked to them.');
+            return back()->with(
+                'error',
+                'This author cannot be deleted while books are linked to them.'
+            );
         }
 
         return redirect()

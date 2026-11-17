@@ -30,11 +30,6 @@ class UserController extends Controller
                 ['key' => 'email', 'label' => 'Email'],
                 ['key' => 'role.role_name', 'label' => 'Role'],
             ],
-            'indexRoute' => 'users.index',
-            'createRoute' => 'users.create',
-            'showRoute' => 'users.show',
-            'editRoute' => 'users.edit',
-            'deleteRoute' => 'users.destroy',
             'filters' => $request->safe()->only('search'),
         ]);
     }
@@ -43,9 +38,8 @@ class UserController extends Controller
     {
         return Inertia::render('Users/Create', [
             'title' => 'User',
-            'indexRoute' => 'users.index',
-            'storeRoute' => 'users.store',
-            'fields' => $this->formFields(),
+            'resource' => 'users',
+            'roles' => $this->roleOptions(),
         ]);
     }
 
@@ -70,9 +64,6 @@ class UserController extends Controller
                 ['key' => 'email', 'label' => 'Email'],
                 ['key' => 'role.role_name', 'label' => 'Role'],
             ],
-            'indexRoute' => 'users.index',
-            'editRoute' => 'users.edit',
-            'deleteRoute' => 'users.destroy',
         ]);
     }
 
@@ -82,12 +73,10 @@ class UserController extends Controller
 
         return Inertia::render('Users/Edit', [
             'title' => 'User',
-            'indexRoute' => 'users.index',
-            'storeRoute' => 'users.store',
-            'updateRoute' => 'users.update',
+            'resource' => 'users',
             'recordId' => $user->id,
             'values' => $user->only('name', 'email', 'role_id'),
-            'fields' => $this->formFields(editing: true),
+            'roles' => $this->roleOptions(),
         ]);
     }
 
@@ -122,23 +111,15 @@ class UserController extends Controller
             ->with('success', 'User deleted successfully.');
     }
 
-    private function formFields(bool $editing = false): array
+    private function roleOptions(): array
     {
-        return [
-            ['name' => 'name', 'label' => 'Name', 'required' => true],
-            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true],
-            [
-                'name' => 'role_id',
-                'label' => 'Role',
-                'type' => 'select',
-                'required' => true,
-                'options' => Role::orderBy('role_name')->get(['id', 'role_name'])->map(fn ($role) => [
-                    'value' => $role->id,
-                    'label' => $role->role_name,
-                ]),
-            ],
-            ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'required' => ! $editing],
-            ['name' => 'password_confirmation', 'label' => 'Confirm Password', 'type' => 'password', 'required' => ! $editing],
-        ];
+        return Role::query()
+            ->orderBy('role_name')
+            ->get(['id', 'role_name'])
+            ->map(fn($role) => [
+                'value' => $role->id,
+                'label' => $role->role_name,
+            ])
+            ->all();
     }
 }

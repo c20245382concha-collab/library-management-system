@@ -24,11 +24,6 @@ class GenreController extends Controller
                 search: $request->validated('search')
             ),
             'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
-            'indexRoute' => 'genres.index',
-            'createRoute' => 'genres.create',
-            'showRoute' => 'genres.show',
-            'editRoute' => 'genres.edit',
-            'deleteRoute' => 'genres.destroy',
             'filters' => $request->safe()->only('search'),
         ]);
     }
@@ -37,9 +32,7 @@ class GenreController extends Controller
     {
         return Inertia::render('Genres/Create', [
             'title' => 'Genre',
-            'indexRoute' => 'genres.index',
-            'storeRoute' => 'genres.store',
-            'fields' => [['name' => 'genre_name', 'label' => 'Genre Name', 'required' => true]],
+            'resource' => 'genres',
         ]);
     }
 
@@ -58,9 +51,6 @@ class GenreController extends Controller
             'title' => 'Genre',
             'item' => $genre,
             'columns' => [['key' => 'genre_name', 'label' => 'Genre']],
-            'indexRoute' => 'genres.index',
-            'editRoute' => 'genres.edit',
-            'deleteRoute' => 'genres.destroy',
         ]);
     }
 
@@ -68,12 +58,9 @@ class GenreController extends Controller
     {
         return Inertia::render('Genres/Edit', [
             'title' => 'Genre',
-            'indexRoute' => 'genres.index',
-            'storeRoute' => 'genres.store',
-            'updateRoute' => 'genres.update',
+            'resource' => 'genres',
             'recordId' => $genre->id,
             'values' => $genre->only('genre_name'),
-            'fields' => [['name' => 'genre_name', 'label' => 'Genre Name', 'required' => true]],
         ]);
     }
 

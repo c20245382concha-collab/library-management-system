@@ -1,5 +1,14 @@
-import ResourceIndex, { type ResourceIndexProps } from '@/components/resources/resource-index';
+import ResourceIndex, {
+    type ResourceIndexProps,
+} from '@/components/resources/resource-index';
 
-export default function AuthorsIndex(props: ResourceIndexProps) {
-    return <ResourceIndex {...props} />;
+export default function AuthorIndex(
+    props: Omit<ResourceIndexProps, 'resource'>,
+) {
+    return (
+        <ResourceIndex
+            {...props}
+            resource="authors"
+        />
+    );
 }

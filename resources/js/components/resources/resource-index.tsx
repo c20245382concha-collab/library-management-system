@@ -24,15 +24,13 @@ interface PaginationLink {
 export interface ResourceIndexProps {
     title: string;
     description?: string;
+    resource: string;
     items: Row[] | { data: Row[]; links?: PaginationLink[] };
     columns: Array<{ key: string; label: string }>;
-    indexRoute: string;
-    createRoute?: string;
-    editRoute?: string;
-    showRoute?: string;
-    showLabel?: string;
-    deleteRoute?: string;
     filters?: { search?: string };
+    canManage?: boolean;
+    canCreate?: boolean;
+    canShow?: boolean;
 }
 
 function rowsFrom(items: ResourceIndexProps['items']): Row[] {
@@ -129,20 +127,26 @@ function formatAvailability(row: Row): {
 export default function ResourceIndex({
     title,
     description,
+    resource,
     items,
     columns,
-    indexRoute,
-    createRoute,
-    editRoute,
-    showRoute,
-    showLabel,
-    deleteRoute,
     filters,
+    canManage = true,
+    canCreate = true,
+    canShow = true,
 }: ResourceIndexProps) {
     const [search, setSearch] = useState(filters?.search ?? '');
 
     const rows = rowsFrom(items);
     const links = linksFrom(items);
+
+    const routes = {
+        index: `${resource}.index`,
+        create: `${resource}.create`,
+        show: `${resource}.show`,
+        edit: `${resource}.edit`,
+        delete: `${resource}.destroy`,
+    };
 
     const isBookCatalogue =
         title.toLowerCase().includes('book') ||
@@ -156,7 +160,7 @@ export default function ResourceIndex({
         event.preventDefault();
 
         router.get(
-            route(indexRoute),
+            route(routes.index),
             { search },
             {
                 preserveState: true,
@@ -173,55 +177,46 @@ export default function ResourceIndex({
 
         const resourceName = title.toLowerCase().replace(/s$/, '');
 
-        if (
-            deleteRoute &&
-            window.confirm(`Delete this ${resourceName}?`)
-        ) {
-            router.delete(route(deleteRoute, id));
+        if (window.confirm(`Delete this ${resourceName}?`)) {
+            router.delete(route(routes.delete, id));
         }
     }
 
     function ActionButtons({ row }: { row: Row }) {
         return (
             <div className="flex items-center gap-1">
-                {showRoute && (
+                {canShow && (
                     <Link
-                        aria-label={showLabel ?? `View ${title}`}
-                        title={showLabel ?? 'View'}
-                        href={route(
-                            showRoute,
-                            row.id as string | number,
-                        )}
+                        aria-label={`View ${title}`}
+                        title="View"
+                        href={route(routes.show, row.id as string | number)}
                         className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
                     >
                         <Eye className="size-4" />
                     </Link>
                 )}
 
-                {editRoute && (
-                    <Link
-                        aria-label={`Edit ${title}`}
-                        title="Edit"
-                        href={route(
-                            editRoute,
-                            row.id as string | number,
-                        )}
-                        className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
-                    >
-                        <Pencil className="size-4" />
-                    </Link>
-                )}
+                {canManage && (
+                    <>
+                        <Link
+                            aria-label={`Edit ${title}`}
+                            title="Edit"
+                            href={route(routes.edit, row.id as string | number)}
+                            className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                        >
+                            <Pencil className="size-4" />
+                        </Link>
 
-                {deleteRoute && (
-                    <button
-                        type="button"
-                        aria-label={`Delete ${title}`}
-                        title="Delete"
-                        onClick={() => deleteItem(row.id)}
-                        className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
-                    >
-                        <Trash2 className="size-4" />
-                    </button>
+                        <button
+                            type="button"
+                            aria-label={`Delete ${title}`}
+                            title="Delete"
+                            onClick={() => deleteItem(row.id)}
+                            className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            <Trash2 className="size-4" />
+                        </button>
+                    </>
                 )}
             </div>
         );
@@ -258,9 +253,9 @@ export default function ResourceIndex({
                             </p>
                         </div>
 
-                        {createRoute && (
+                        {canManage && canCreate && (
                             <Link
-                                href={route(createRoute)}
+                                href={route(routes.create)}
                                 className="inline-flex h-11 items-center gap-2 rounded-full bg-[#FCE9ED] px-5 text-sm font-semibold text-[#541F32] transition hover:bg-white"
                             >
                                 <Plus className="size-4" />
@@ -328,12 +323,8 @@ export default function ResourceIndex({
                         {rows.length > 0 ? (
                             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {rows.map((row, index) => {
-                                    const image = getCoverImage(
-                                        row.cover_image,
-                                    );
-
-                                    const availability =
-                                        formatAvailability(row);
+                                    const image = getCoverImage(row.cover_image);
+                                    const availability = formatAvailability(row);
 
                                     const genres = Array.isArray(row.genres)
                                         ? row.genres
@@ -410,22 +401,19 @@ export default function ResourceIndex({
                                             {/* Book Details */}
                                             <div className="flex flex-1 flex-col p-5">
                                                 <div className="flex flex-wrap gap-1.5">
-                                                    {genres
-                                                        .slice(0, 2)
-                                                        .map((genre) => (
-                                                            <span
-                                                                key={genre}
-                                                                className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold text-accent-foreground"
-                                                            >
-                                                                {genre}
-                                                            </span>
-                                                        ))}
+                                                    {genres.slice(0, 2).map((genre) => (
+                                                        <span
+                                                            key={genre}
+                                                            className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold text-accent-foreground"
+                                                        >
+                                                            {genre}
+                                                        </span>
+                                                    ))}
                                                 </div>
 
                                                 <h3 className="mt-3 line-clamp-2 font-serif text-xl leading-snug text-card-foreground">
                                                     {String(
-                                                        row.title ??
-                                                        'Untitled Book',
+                                                        row.title ?? 'Untitled Book',
                                                     )}
                                                 </h3>
 
@@ -459,35 +447,26 @@ export default function ResourceIndex({
                                                         Publication year:{' '}
                                                         <span className="font-medium text-foreground">
                                                             {String(
-                                                                row.publication_year ??
-                                                                '—',
+                                                                row.publication_year ?? '—',
                                                             )}
                                                         </span>
                                                     </p>
 
-                                                    <p>
-                                                        {availability.label}
-                                                    </p>
+                                                    <p>{availability.label}</p>
                                                 </div>
 
                                                 {/* Card Actions */}
                                                 <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
-                                                    {showRoute ? (
-                                                        <Link
-                                                            href={route(
-                                                                showRoute,
-                                                                row.id as string | number,
-                                                            )}
-                                                            className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:opacity-75"
-                                                        >
-                                                            View details
-                                                            <ArrowRight className="size-4" />
-                                                        </Link>
-                                                    ) : (
-                                                        <span className="text-xs font-medium text-muted-foreground">
-                                                            Book details
-                                                        </span>
-                                                    )}
+                                                    <Link
+                                                        href={route(
+                                                            routes.show,
+                                                            row.id as string | number,
+                                                        )}
+                                                        className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:opacity-75"
+                                                    >
+                                                        View details
+                                                        <ArrowRight className="size-4" />
+                                                    </Link>
 
                                                     <ActionButtons row={row} />
                                                 </div>
@@ -497,7 +476,6 @@ export default function ResourceIndex({
                                 })}
                             </div>
                         ) : (
-                            /* Empty Book Catalogue */
                             <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
                                 <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
                                     <BookOpen className="size-7" />
@@ -530,11 +508,9 @@ export default function ResourceIndex({
                                             </th>
                                         ))}
 
-                                        {(showRoute || editRoute || deleteRoute) && (
-                                            <th className="px-5 py-4 text-right font-semibold">
-                                                Actions
-                                            </th>
-                                        )}
+                                        <th className="px-5 py-4 text-right font-semibold">
+                                            Actions
+                                        </th>
                                     </tr>
                                 </thead>
 
@@ -553,25 +529,18 @@ export default function ResourceIndex({
                                                 </td>
                                             ))}
 
-                                            {(showRoute || editRoute || deleteRoute) && (
-                                                <td className="px-5 py-3">
-                                                    <div className="flex justify-end">
-                                                        <ActionButtons row={row} />
-                                                    </div>
-                                                </td>
-                                            )}
+                                            <td className="px-5 py-3">
+                                                <div className="flex justify-end">
+                                                    <ActionButtons row={row} />
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
 
                                     {rows.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={
-                                                    columns.length +
-                                                    (showRoute || editRoute || deleteRoute
-                                                        ? 1
-                                                        : 0)
-                                                }
+                                                colSpan={columns.length + 1}
                                                 className="px-5 py-16 text-center text-muted-foreground"
                                             >
                                                 No records found.
@@ -593,7 +562,7 @@ export default function ResourceIndex({
                         {links.map((link, index) => (
                             <Link
                                 key={`${link.label}-${index}`}
-                                href={link.url ?? route(indexRoute)}
+                                href={link.url ?? route(routes.index)}
                                 preserveScroll
                                 className={`flex min-h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-medium transition ${link.active
                                     ? 'border-primary bg-primary text-primary-foreground'

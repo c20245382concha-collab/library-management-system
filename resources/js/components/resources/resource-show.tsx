@@ -16,9 +16,7 @@ export interface ResourceShowProps {
     title: string;
     item: RecordData;
     columns: Array<{ key: string; label: string }>;
-    indexRoute: string;
-    editRoute?: string;
-    deleteRoute?: string;
+    resource: string;
 }
 
 function valueAt(record: RecordData, path: string): string {
@@ -63,18 +61,13 @@ export default function ResourceShow({
     title,
     item,
     columns,
-    indexRoute,
-    editRoute,
-    deleteRoute,
+    resource,
 }: ResourceShowProps) {
     const recordId = item.id as string | number;
 
     function deleteRecord() {
-        if (
-            deleteRoute &&
-            window.confirm(`Delete this ${title.toLowerCase()}?`)
-        ) {
-            router.delete(route(deleteRoute, recordId));
+        if (window.confirm(`Delete this ${title.toLowerCase()}?`)) {
+            router.delete(route(`${resource}.destroy`, recordId));
         }
     }
 
@@ -85,7 +78,7 @@ export default function ResourceShow({
             <main className="min-h-screen bg-[#fbf7f3] px-4 py-8 md:px-8">
                 <div className="mx-auto max-w-5xl space-y-8">
                     <Link
-                        href={route(indexRoute)}
+                        href={route(`${resource}.index`)}
                         className="inline-flex items-center gap-2 text-sm font-medium text-[#806b68] transition hover:text-[#762f43]"
                     >
                         <ArrowLeft className="size-4" />
@@ -119,26 +112,22 @@ export default function ResourceShow({
                             </div>
 
                             <div className="flex gap-2">
-                                {editRoute && (
-                                    <Link
-                                        href={route(editRoute, recordId)}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-[#f4e7e4] px-4 py-2.5 text-sm font-semibold text-[#762f43] transition hover:bg-white"
-                                    >
-                                        <Pencil className="size-4" />
-                                        Edit
-                                    </Link>
-                                )}
+                                <Link
+                                    href={route(`${resource}.edit`, recordId)}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-[#f4e7e4] px-4 py-2.5 text-sm font-semibold text-[#762f43] transition hover:bg-white"
+                                >
+                                    <Pencil className="size-4" />
+                                    Edit
+                                </Link>
 
-                                {deleteRoute && (
-                                    <button
-                                        type="button"
-                                        onClick={deleteRecord}
-                                        className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                                    >
-                                        <Trash2 className="size-4" />
-                                        Delete
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={deleteRecord}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                                >
+                                    <Trash2 className="size-4" />
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     </section>
@@ -208,7 +197,7 @@ export default function ResourceShow({
                         </div>
 
                         <Link
-                            href={route(indexRoute)}
+                            href={route(`${resource}.index`)}
                             className="rounded-xl border border-[#d8bdba] bg-white px-4 py-2.5 text-sm font-semibold text-[#762f43] transition hover:bg-[#fbf7f3]"
                         >
                             Back to List

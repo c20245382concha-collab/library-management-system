@@ -25,11 +25,6 @@ class PublisherController extends Controller
                 search: $request->validated('search')
             ),
             'columns' => [['key' => 'publisher_name', 'label' => 'Publisher']],
-            'indexRoute' => 'publishers.index',
-            'createRoute' => 'publishers.create',
-            'showRoute' => 'publishers.show',
-            'editRoute' => 'publishers.edit',
-            'deleteRoute' => 'publishers.destroy',
             'filters' => $request->safe()->only('search'),
         ]);
     }
@@ -38,9 +33,7 @@ class PublisherController extends Controller
     {
         return Inertia::render('Publishers/Create', [
             'title' => 'Publisher',
-            'indexRoute' => 'publishers.index',
-            'storeRoute' => 'publishers.store',
-            'fields' => [['name' => 'publisher_name', 'label' => 'Publisher Name', 'required' => true]],
+            'resource' => 'publishers',
         ]);
     }
 
@@ -60,9 +53,6 @@ class PublisherController extends Controller
             'title' => 'Publisher',
             'item' => $publisher,
             'columns' => [['key' => 'publisher_name', 'label' => 'Publisher']],
-            'indexRoute' => 'publishers.index',
-            'editRoute' => 'publishers.edit',
-            'deleteRoute' => 'publishers.destroy',
         ]);
     }
 
@@ -70,12 +60,9 @@ class PublisherController extends Controller
     {
         return Inertia::render('Publishers/Edit', [
             'title' => 'Publisher',
-            'indexRoute' => 'publishers.index',
-            'storeRoute' => 'publishers.store',
-            'updateRoute' => 'publishers.update',
+            'resource' => 'publishers',
             'recordId' => $publisher->id,
             'values' => $publisher->only('publisher_name'),
-            'fields' => [['name' => 'publisher_name', 'label' => 'Publisher Name', 'required' => true]],
         ]);
     }
 

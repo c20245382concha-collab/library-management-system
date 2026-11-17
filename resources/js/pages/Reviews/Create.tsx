@@ -1,5 +1,19 @@
-import ResourceForm, { type ResourceFormProps } from '@/components/resources/resource-form';
+import ResourceForm, {
+    type FieldOption,
+    type ResourceFormProps,
+} from '@/components/resources/resource-form';
+import { getReviewFields } from '@/components/resources/review-fields';
 
-export default function ReviewCreate(props: ResourceFormProps) {
-    return <ResourceForm {...props} />;
+interface ReviewCreateProps extends Omit<ResourceFormProps, 'fields'> {
+    books: FieldOption[];
+}
+
+export default function ReviewCreate(props: ReviewCreateProps) {
+    return (
+        <ResourceForm
+            {...props}
+            fields={getReviewFields({ books: props.books })}
+            indexRoute="books.index"
+        />
+    );
 }

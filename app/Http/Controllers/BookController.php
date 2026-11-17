@@ -28,7 +28,6 @@ class BookController extends Controller
     {
         $user = Auth::user();
         $isAdmin = $user instanceof User && $user->isAdmin();
-        Book::with(['author', 'publisher', 'genres'])->paginate(12);
 
         return Inertia::render('Books/Index', [
             'title' => 'Books',
@@ -42,11 +41,7 @@ class BookController extends Controller
                 ['key' => 'available_copies', 'label' => 'Available'],
                 ['key' => 'total_copies', 'label' => 'Copies'],
             ],
-            'indexRoute' => 'books.index',
-            'createRoute' => $isAdmin ? 'books.create' : null,
-            'editRoute' => $isAdmin ? 'books.edit' : null,
-            'deleteRoute' => $isAdmin ? 'books.destroy' : null,
-            'showRoute' => 'books.show',
+            'canManage' => $isAdmin,
             'filters' => $request->safe()->only('search'),
         ]);
     }
@@ -55,9 +50,10 @@ class BookController extends Controller
     {
         return Inertia::render('Books/Create', [
             'title' => 'Book',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'books.store',
-            'fields' => $this->formFields(),
+            'resource' => 'books',
+            'authors' => $this->authorOptions(),
+            'publishers' => $this->publisherOptions(),
+            'genres' => $this->genreOptions(),
         ]);
     }
 
@@ -96,9 +92,7 @@ class BookController extends Controller
 
         return Inertia::render('Books/Edit', [
             'title' => 'Book',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'books.store',
-            'updateRoute' => 'books.update',
+            'resource' => 'books',
             'recordId' => $book->id,
             'values' => $book->only([
                 'author_id',
@@ -111,8 +105,12 @@ class BookController extends Controller
                 'description',
                 'cover_image',
                 'total_copies',
-            ]) + ['genre_ids' => $book->genres->modelKeys()],
-            'fields' => $this->formFields(),
+            ]) + [
+                'genre_ids' => $book->genres->modelKeys(),
+            ],
+            'authors' => $this->authorOptions(),
+            'publishers' => $this->publisherOptions(),
+            'genres' => $this->genreOptions(),
         ]);
     }
 
@@ -145,7 +143,10 @@ class BookController extends Controller
                 throw $exception;
             }
 
-            return back()->with('error', 'This book cannot be deleted while borrowing requests are linked to it.');
+            return back()->with(
+                'error',
+                'This book cannot be deleted while borrowing requests are linked to it.'
+            );
         }
 
         return redirect()
@@ -153,50 +154,39 @@ class BookController extends Controller
             ->with('success', 'Book deleted successfully.');
     }
 
-    private function formFields(): array
+    private function authorOptions(): array
     {
-        return [
-            [
-                'name' => 'title',
-                'label' => 'Title',
-                'required' => true,
-            ],
-            [
-                'name' => 'author_id',
-                'label' => 'Author',
-                'type' => 'select',
-                'required' => true,
-                'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn($author) => [
-                    'value' => $author->id,
-                    'label' => $author->name,
-                ]),
-            ],
-            [
-                'name' => 'publisher_id',
-                'label' => 'Publisher',
-                'type' => 'select',
-                'required' => true,
-                'options' => Publisher::orderBy('publisher_name')->get(['id', 'publisher_name'])->map(fn($publisher) => [
-                    'value' => $publisher->id,
-                    'label' => $publisher->publisher_name,
-                ]),
-            ],
-            ['name' => 'isbn', 'label' => 'ISBN'],
-            ['name' => 'edition', 'label' => 'Edition'],
-            ['name' => 'publication_year', 'label' => 'Publication Year', 'type' => 'number', 'min' => 1000, 'max' => now()->year],
-            ['name' => 'language', 'label' => 'Language', 'required' => true],
-            ['name' => 'description', 'label' => 'Description', 'type' => 'textarea'],
-            ['name' => 'cover_image', 'label' => 'Cover Image URL'],
-            ['name' => 'total_copies', 'label' => 'Total Copies', 'type' => 'number', 'required' => true, 'min' => 1],
-            [
-                'name' => 'genre_ids',
-                'label' => 'Genres',
-                'type' => 'multi',
-                'options' => Genre::orderBy('genre_name')->get(['id', 'genre_name'])->map(fn($genre) => [
-                    'value' => $genre->id,
-                    'label' => $genre->genre_name,
-                ]),
-            ],
-        ];
+        return Author::query()
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn($author) => [
+                'value' => $author->id,
+                'label' => $author->name,
+            ])
+            ->all();
+    }
+
+    private function publisherOptions(): array
+    {
+        return Publisher::query()
+            ->orderBy('publisher_name')
+            ->get(['id', 'publisher_name'])
+            ->map(fn($publisher) => [
+                'value' => $publisher->id,
+                'label' => $publisher->publisher_name,
+            ])
+            ->all();
+    }
+
+    private function genreOptions(): array
+    {
+        return Genre::query()
+            ->orderBy('genre_name')
+            ->get(['id', 'genre_name'])
+            ->map(fn($genre) => [
+                'value' => $genre->id,
+                'label' => $genre->genre_name,
+            ])
+            ->all();
     }
 }

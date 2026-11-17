@@ -1,5 +1,18 @@
-import ResourceForm, { type ResourceFormProps } from '@/components/resources/resource-form';
+import ResourceForm, {
+    type FieldOption,
+    type ResourceFormProps,
+} from '@/components/resources/resource-form';
+import { getUserFields } from '@/components/resources/user-fields';
 
-export default function UserCreate(props: ResourceFormProps) {
-    return <ResourceForm {...props} />;
+interface UserCreateProps extends Omit<ResourceFormProps, 'fields'> {
+    roles: FieldOption[];
+}
+
+export default function UserCreate(props: UserCreateProps) {
+    return (
+        <ResourceForm
+            {...props}
+            fields={getUserFields({ roles: props.roles }, false)}
+        />
+    );
 }

@@ -29,7 +29,6 @@ class ReviewController extends Controller
                 ['key' => 'stars', 'label' => 'Rating'],
                 ['key' => 'comment', 'label' => 'Comment'],
             ],
-            'indexRoute' => 'reviews.index',
         ]);
     }
 
@@ -41,10 +40,9 @@ class ReviewController extends Controller
 
         return Inertia::render('Reviews/Create', [
             'title' => 'Review',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'reviews.store',
+            'resource' => 'reviews',
             'values' => ['book_id' => $validated['book_id'] ?? ''],
-            'fields' => $this->formFields(),
+            'books' => $this->bookOptions(),
         ]);
     }
 
@@ -64,12 +62,10 @@ class ReviewController extends Controller
     {
         return Inertia::render('Reviews/Edit', [
             'title' => 'Review',
-            'indexRoute' => 'books.index',
-            'storeRoute' => 'reviews.store',
-            'updateRoute' => 'reviews.update',
+            'resource' => 'reviews',
             'recordId' => $review->id,
             'values' => $review->only('book_id', 'stars', 'comment'),
-            'fields' => $this->formFields(),
+            'books' => $this->bookOptions(),
         ]);
     }
 
@@ -96,21 +92,15 @@ class ReviewController extends Controller
             ->with('success', 'Review deleted successfully.');
     }
 
-    private function formFields(): array
+    private function bookOptions(): array
     {
-        return [
-            [
-                'name' => 'book_id',
-                'label' => 'Book',
-                'type' => 'select',
-                'required' => true,
-                'options' => Book::orderBy('title')->get(['id', 'title'])->map(fn ($book) => [
-                    'value' => $book->id,
-                    'label' => $book->title,
-                ]),
-            ],
-            ['name' => 'stars', 'label' => 'Rating (1–5)', 'type' => 'number', 'required' => true, 'min' => 1, 'max' => 5],
-            ['name' => 'comment', 'label' => 'Comment', 'type' => 'textarea'],
-        ];
+        return Book::query()
+            ->orderBy('title')
+            ->get(['id', 'title'])
+            ->map(fn($book) => [
+                'value' => $book->id,
+                'label' => $book->title,
+            ])
+            ->all();
     }
 }

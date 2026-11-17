@@ -1,5 +1,18 @@
-import ResourceForm, { type ResourceFormProps } from '@/components/resources/resource-form';
+import ResourceForm, {
+    type FieldOption,
+    type ResourceFormProps,
+} from '@/components/resources/resource-form';
+import { getAuthorProfileFields } from '@/components/resources/author-profile-fields';
 
-export default function AuthorProfileEdit(props: ResourceFormProps) {
-    return <ResourceForm {...props} />;
+interface AuthorProfileEditProps extends Omit<ResourceFormProps, 'fields'> {
+    authors: FieldOption[];
+}
+
+export default function AuthorProfileEdit(props: AuthorProfileEditProps) {
+    return (
+        <ResourceForm
+            {...props}
+            fields={getAuthorProfileFields(props.authors)}
+        />
+    );
 }

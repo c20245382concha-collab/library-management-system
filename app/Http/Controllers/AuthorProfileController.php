@@ -14,7 +14,8 @@ class AuthorProfileController extends Controller
 {
     public function __construct(
         private AuthorProfileService $profileService
-    ) {}
+    ) {
+    }
 
     public function index(): Response
     {
@@ -25,11 +26,6 @@ class AuthorProfileController extends Controller
                 ['key' => 'author.name', 'label' => 'Author'],
                 ['key' => 'bio', 'label' => 'Biography'],
             ],
-            'indexRoute' => 'author-profiles.index',
-            'createRoute' => 'author-profiles.create',
-            'showRoute' => 'author-profiles.show',
-            'editRoute' => 'author-profiles.edit',
-            'deleteRoute' => 'author-profiles.destroy',
         ]);
     }
 
@@ -37,21 +33,8 @@ class AuthorProfileController extends Controller
     {
         return Inertia::render('AuthorProfiles/Create', [
             'title' => 'Author Profile',
-            'indexRoute' => 'author-profiles.index',
-            'storeRoute' => 'author-profiles.store',
-            'fields' => [
-                [
-                    'name' => 'author_id',
-                    'label' => 'Author',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn ($author) => [
-                        'value' => $author->id,
-                        'label' => $author->name,
-                    ]),
-                ],
-                ['name' => 'bio', 'label' => 'Biography', 'type' => 'textarea'],
-            ],
+            'resource' => 'author-profiles',
+            'authors' => $this->authorOptions(),
         ]);
     }
 
@@ -76,9 +59,6 @@ class AuthorProfileController extends Controller
                 ['key' => 'author.name', 'label' => 'Author'],
                 ['key' => 'bio', 'label' => 'Biography'],
             ],
-            'indexRoute' => 'author-profiles.index',
-            'editRoute' => 'author-profiles.edit',
-            'deleteRoute' => 'author-profiles.destroy',
         ]);
     }
 
@@ -88,24 +68,10 @@ class AuthorProfileController extends Controller
 
         return Inertia::render('AuthorProfiles/Edit', [
             'title' => 'Author Profile',
-            'indexRoute' => 'author-profiles.index',
-            'storeRoute' => 'author-profiles.store',
-            'updateRoute' => 'author-profiles.update',
+            'resource' => 'author-profiles',
             'recordId' => $authorProfile->id,
             'values' => $authorProfile->only('author_id', 'bio'),
-            'fields' => [
-                [
-                    'name' => 'author_id',
-                    'label' => 'Author',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => Author::orderBy('name')->get(['id', 'name'])->map(fn ($author) => [
-                        'value' => $author->id,
-                        'label' => $author->name,
-                    ]),
-                ],
-                ['name' => 'bio', 'label' => 'Biography', 'type' => 'textarea'],
-            ],
+            'authors' => $this->authorOptions(),
         ]);
     }
 
@@ -131,5 +97,17 @@ class AuthorProfileController extends Controller
         return redirect()
             ->route('author-profiles.index')
             ->with('success', 'Author profile deleted successfully.');
+    }
+
+    private function authorOptions(): array
+    {
+        return Author::query()
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn($author) => [
+                'value' => $author->id,
+                'label' => $author->name,
+            ])
+            ->all();
     }
 }

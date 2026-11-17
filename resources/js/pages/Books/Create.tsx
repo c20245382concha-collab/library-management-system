@@ -1,5 +1,14 @@
-import ResourceForm, { type ResourceFormProps } from '@/components/resources/resource-form';
+import ResourceForm, { type ResourceFormProps, type FieldOption } from '@/components/resources/resource-form';
+import { getBookFields } from '@/components/resources/book-fields';
 
-export default function BookCreate(props: ResourceFormProps) {
-    return <ResourceForm {...props} />;
+interface BookCreateProps extends Omit<ResourceFormProps, 'fields'> {
+    authors: FieldOption[];
+    publishers: FieldOption[];
+    genres: FieldOption[];
+}
+
+export default function BookCreate(props: BookCreateProps) {
+    const fields = getBookFields(props);
+
+    return <ResourceForm {...props} fields={fields} />;
 }
