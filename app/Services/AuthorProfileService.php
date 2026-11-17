@@ -15,6 +15,28 @@ class AuthorProfileService
             ->paginate($perPage);
     }
 
+    public function getForShow(AuthorProfile $profile): AuthorProfile
+    {
+        return $profile->load('author');
+    }
+
+    public function getForEdit(AuthorProfile $profile): AuthorProfile
+    {
+        return $profile->load('author');
+    }
+
+    public function getAuthorOptions(): array
+    {
+        return \App\Models\Author::query()
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn ($author) => [
+                'value' => $author->id,
+                'label' => $author->name,
+            ])
+            ->all();
+    }
+
     public function create(array $data): AuthorProfile
     {
         return AuthorProfile::create($this->sanitize($data));

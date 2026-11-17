@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Author;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class AuthorService
@@ -18,6 +19,21 @@ class AuthorService
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    public function getForShow(Author $author): Author
+    {
+        return $author->load([
+            'profile',
+            'books' => fn ($query) => $query
+                ->select(['id', 'author_id', 'title', 'publication_year'])
+                ->orderBy('title'),
+        ]);
+    }
+
+    public function getForEdit(Author $author): Author
+    {
+        return $author->load('profile');
     }
 
     public function create(array $data): Author
@@ -42,7 +58,18 @@ class AuthorService
 
     public function delete(Author $author): void
     {
-        $author->delete();
+        try {
+            $author->delete();
+        } catch (QueryException $exception) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
+                throw $exception;
+            }
+
+            throw new \DomainException(
+                'This author cannot be deleted while books are linked to them.',
+                previous: $exception
+            );
+        }
     }
 
     private function sanitize(array $data): array

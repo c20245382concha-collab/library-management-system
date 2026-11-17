@@ -9,6 +9,13 @@ use App\Models\User;
 
 class DashboardService
 {
+    public function getUserForDashboard(int $userId): User
+    {
+        return User::query()
+            ->with('role')
+            ->findOrFail($userId);
+    }
+
     public function getAdminStats(): array
     {
         return [

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Review;
+use App\Models\Book;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ReviewService
@@ -24,6 +25,18 @@ class ReviewService
             ->where('book_id', $bookId)
             ->latest()
             ->paginate($perPage);
+    }
+
+    public function getBookOptions(): array
+    {
+        return Book::query()
+            ->orderBy('title')
+            ->get(['id', 'title'])
+            ->map(fn ($book) => [
+                'value' => $book->id,
+                'label' => $book->title,
+            ])
+            ->all();
     }
 
     public function create(int $userId, array $data): Review

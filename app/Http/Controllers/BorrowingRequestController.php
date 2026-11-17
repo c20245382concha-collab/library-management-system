@@ -19,85 +19,53 @@ class BorrowingRequestController extends Controller
 
     public function index(SearchRequest $request): Response
     {
-        $search = $request->validated('search');
-        $search = $search !== null ? trim($search) : null;
-
         return Inertia::render('BorrowingRequests/Index', [
-            'requests' => $this->borrowingService->getAll(search: $search),
-            'filters' => ['search' => $search],
+            'requests' => $this->borrowingService->getAll(
+                search: $request->validated('search')
+            ),
+            'filters' => $request->safe()->only('search'),
         ]);
     }
 
     public function myRequests(): Response
     {
         return Inertia::render('BorrowingRequests/MyRequests', [
-            'requests' => $this->borrowingService->getUserRequests(
-                (int) Auth::id()
-            ),
+            'requests' => $this->borrowingService->getUserRequests((int) Auth::id()),
         ]);
     }
 
-    public function store(
-        BorrowingRequestForm $request
-    ): RedirectResponse {
-        $this->borrowingService->submit(
-            (int) Auth::id(),
-            $request->validated()
-        );
+    public function store(BorrowingRequestForm $request): RedirectResponse
+    {
+        $this->borrowingService->submit((int) Auth::id(), $request->validated());
 
-        return back()->with(
-            'success',
-            'Borrowing request submitted successfully.'
-        );
+        return back()->with('success', 'Borrowing request submitted successfully.');
     }
 
-    public function approve(
-        BorrowingRequest $borrowingRequest
-    ): RedirectResponse {
-        $this->borrowingService->approve(
-            $borrowingRequest,
-            (int) Auth::id()
-        );
+    public function approve(BorrowingRequest $borrowingRequest): RedirectResponse
+    {
+        $this->borrowingService->approve($borrowingRequest, (int) Auth::id());
 
-        return back()->with(
-            'success',
-            'Borrowing request approved successfully.'
-        );
+        return back()->with('success', 'Borrowing request approved successfully.');
     }
 
-    public function reject(
-        BorrowingRequest $borrowingRequest
-    ): RedirectResponse {
-        $this->borrowingService->reject(
-            $borrowingRequest,
-            (int) Auth::id()
-        );
+    public function reject(BorrowingRequest $borrowingRequest): RedirectResponse
+    {
+        $this->borrowingService->reject($borrowingRequest, (int) Auth::id());
 
-        return back()->with(
-            'success',
-            'Borrowing request rejected successfully.'
-        );
+        return back()->with('success', 'Borrowing request rejected successfully.');
     }
 
-    public function issue(
-        BorrowingRequest $borrowingRequest
-    ): RedirectResponse {
+    public function issue(BorrowingRequest $borrowingRequest): RedirectResponse
+    {
         $this->borrowingService->issue($borrowingRequest);
 
-        return back()->with(
-            'success',
-            'Book issued successfully.'
-        );
+        return back()->with('success', 'Book issued successfully.');
     }
 
-    public function returnBook(
-        BorrowingRequest $borrowingRequest
-    ): RedirectResponse {
+    public function returnBook(BorrowingRequest $borrowingRequest): RedirectResponse
+    {
         $this->borrowingService->returnBook($borrowingRequest);
 
-        return back()->with(
-            'success',
-            'Book returned successfully.'
-        );
+        return back()->with('success', 'Book returned successfully.');
     }
 }

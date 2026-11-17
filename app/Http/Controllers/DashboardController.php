@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,17 +15,15 @@ class DashboardController extends Controller
 
     public function index(): Response
     {
-        $user = User::query()
-            ->with('role')
-            ->findOrFail(Auth::id());
-
-        $stats = $user->isAdmin()
+        $user = $this->dashboardService->getUserForDashboard((int) Auth::id());
+        $isAdmin = $user->isAdmin();
+        $stats = $isAdmin
             ? $this->dashboardService->getAdminStats()
             : $this->dashboardService->getMemberStats($user->id);
 
         return Inertia::render('Dashboard/Index', [
             'stats' => $stats,
-            'isAdmin' => $user->isAdmin(),
+            'isAdmin' => $isAdmin,
             'userName' => $user->name,
         ]);
     }

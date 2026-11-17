@@ -40,9 +40,7 @@ class GenreController extends Controller
     {
         $this->genreService->create($request->validated());
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre created successfully.');
+        return to_route('genres.index')->with('success', 'Genre created successfully.');
     }
 
     public function show(Genre $genre): Response
@@ -64,26 +62,17 @@ class GenreController extends Controller
         ]);
     }
 
-    public function update(
-        GenreRequest $request,
-        Genre $genre
-    ): RedirectResponse {
-        $this->genreService->update(
-            $genre,
-            $request->validated()
-        );
+    public function update(GenreRequest $request, Genre $genre): RedirectResponse
+    {
+        $this->genreService->update($genre, $request->validated());
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre updated successfully.');
+        return to_route('genres.index')->with('success', 'Genre updated successfully.');
     }
 
     public function destroy(Genre $genre): RedirectResponse
     {
         $this->genreService->delete($genre);
 
-        return redirect()
-            ->route('genres.index')
-            ->with('success', 'Genre deleted successfully.');
+        return to_route('genres.index')->with('success', 'Genre deleted successfully.');
     }
 }

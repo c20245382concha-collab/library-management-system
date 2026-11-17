@@ -6,7 +6,7 @@ use App\Http\Requests\PublisherRequest;
 use App\Http\Requests\SearchRequest;
 use App\Models\Publisher;
 use App\Services\PublisherService;
-use Illuminate\Database\QueryException;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -37,14 +37,11 @@ class PublisherController extends Controller
         ]);
     }
 
-    public function store(
-        PublisherRequest $request
-    ): RedirectResponse {
+    public function store(PublisherRequest $request): RedirectResponse
+    {
         $this->publisherService->create($request->validated());
 
-        return redirect()
-            ->route('publishers.index')
-            ->with('success', 'Publisher created successfully.');
+        return to_route('publishers.index')->with('success', 'Publisher created successfully.');
     }
 
     public function show(Publisher $publisher): Response
@@ -66,34 +63,21 @@ class PublisherController extends Controller
         ]);
     }
 
-    public function update(
-        PublisherRequest $request,
-        Publisher $publisher
-    ): RedirectResponse {
-        $this->publisherService->update(
-            $publisher,
-            $request->validated()
-        );
+    public function update(PublisherRequest $request, Publisher $publisher): RedirectResponse
+    {
+        $this->publisherService->update($publisher, $request->validated());
 
-        return redirect()
-            ->route('publishers.index')
-            ->with('success', 'Publisher updated successfully.');
+        return to_route('publishers.index')->with('success', 'Publisher updated successfully.');
     }
 
     public function destroy(Publisher $publisher): RedirectResponse
     {
         try {
             $this->publisherService->delete($publisher);
-        } catch (QueryException $exception) {
-            if (! str_starts_with((string) $exception->getCode(), '23')) {
-                throw $exception;
-            }
-
-            return back()->with('error', 'This publisher cannot be deleted while books are linked to them.');
+        } catch (DomainException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        return redirect()
-            ->route('publishers.index')
-            ->with('success', 'Publisher deleted successfully.');
+        return to_route('publishers.index')->with('success', 'Publisher deleted successfully.');
     }
 }

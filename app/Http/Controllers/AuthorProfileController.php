@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthorProfileRequest;
-use App\Models\Author;
 use App\Models\AuthorProfile;
 use App\Services\AuthorProfileService;
 use Illuminate\Http\RedirectResponse;
-use Inertia\Inertia;
 use Inertia\Response;
+use Inertia\Inertia;
 
 class AuthorProfileController extends Controller
 {
@@ -34,7 +33,7 @@ class AuthorProfileController extends Controller
         return Inertia::render('AuthorProfiles/Create', [
             'title' => 'Author Profile',
             'resource' => 'author-profiles',
-            'authors' => $this->authorOptions(),
+            'authors' => $this->profileService->getAuthorOptions(),
         ]);
     }
 
@@ -43,14 +42,12 @@ class AuthorProfileController extends Controller
     ): RedirectResponse {
         $this->profileService->create($request->validated());
 
-        return redirect()
-            ->route('author-profiles.index')
-            ->with('success', 'Author profile created successfully.');
+        return redirect()->route('author-profiles.index')->with('success', 'Author profile created successfully.');
     }
 
     public function show(AuthorProfile $authorProfile): Response
     {
-        $authorProfile->load('author');
+        $authorProfile = $this->profileService->getForShow($authorProfile);
 
         return Inertia::render('AuthorProfiles/Show', [
             'title' => 'Author Profile',
@@ -64,14 +61,14 @@ class AuthorProfileController extends Controller
 
     public function edit(AuthorProfile $authorProfile): Response
     {
-        $authorProfile->load('author');
+        $authorProfile = $this->profileService->getForEdit($authorProfile);
 
         return Inertia::render('AuthorProfiles/Edit', [
             'title' => 'Author Profile',
             'resource' => 'author-profiles',
             'recordId' => $authorProfile->id,
             'values' => $authorProfile->only('author_id', 'bio'),
-            'authors' => $this->authorOptions(),
+            'authors' => $this->profileService->getAuthorOptions(),
         ]);
     }
 
@@ -84,9 +81,7 @@ class AuthorProfileController extends Controller
             $request->validated()
         );
 
-        return redirect()
-            ->route('author-profiles.index')
-            ->with('success', 'Author profile updated successfully.');
+        return redirect()->route('author-profiles.index')->with('success', 'Author profile updated successfully.');
     }
 
     public function destroy(
@@ -99,15 +94,4 @@ class AuthorProfileController extends Controller
             ->with('success', 'Author profile deleted successfully.');
     }
 
-    private function authorOptions(): array
-    {
-        return Author::query()
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->map(fn($author) => [
-                'value' => $author->id,
-                'label' => $author->name,
-            ])
-            ->all();
-    }
 }

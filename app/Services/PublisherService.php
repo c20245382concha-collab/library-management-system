@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Publisher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\QueryException;
 
 class PublisherService
 {
@@ -32,7 +33,18 @@ class PublisherService
 
     public function delete(Publisher $publisher): void
     {
-        $publisher->delete();
+        try {
+            $publisher->delete();
+        } catch (QueryException $exception) {
+            if (! str_starts_with((string) $exception->getCode(), '23')) {
+                throw $exception;
+            }
+
+            throw new \DomainException(
+                'This publisher cannot be deleted while books are linked to them.',
+                previous: $exception
+            );
+        }
     }
 
     private function sanitize(array $data): array

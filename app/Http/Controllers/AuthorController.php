@@ -6,7 +6,7 @@ use App\Http\Requests\AuthorRequest;
 use App\Http\Requests\SearchRequest;
 use App\Models\Author;
 use App\Services\AuthorService;
-use Illuminate\Database\QueryException;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,8 +15,7 @@ class AuthorController extends Controller
 {
     public function __construct(
         private AuthorService $authorService
-    ) {
-    }
+    ) {}
 
     public function index(SearchRequest $request): Response
     {
@@ -45,19 +44,12 @@ class AuthorController extends Controller
     {
         $this->authorService->create($request->validated());
 
-        return redirect()
-            ->route('authors.index')
-            ->with('success', 'Author created successfully.');
+        return to_route('authors.index')->with('success', 'Author created successfully.');
     }
 
     public function show(Author $author): Response
     {
-        $author->load([
-            'profile',
-            'books' => fn($query) => $query
-                ->select(['id', 'author_id', 'title', 'publication_year'])
-                ->orderBy('title'),
-        ]);
+        $author = $this->authorService->getForShow($author);
 
         return Inertia::render('Authors/Show', [
             'title' => 'Author',
@@ -67,6 +59,8 @@ class AuthorController extends Controller
 
     public function edit(Author $author): Response
     {
+        $author = $this->authorService->getForEdit($author);
+
         return Inertia::render('Authors/Edit', [
             'title' => 'Author',
             'resource' => 'authors',
@@ -77,37 +71,21 @@ class AuthorController extends Controller
         ]);
     }
 
-    public function update(
-        AuthorRequest $request,
-        Author $author
-    ): RedirectResponse {
-        $this->authorService->update(
-            $author,
-            $request->validated()
-        );
+    public function update(AuthorRequest $request, Author $author): RedirectResponse
+    {
+        $this->authorService->update($author, $request->validated());
 
-        return redirect()
-            ->route('authors.index')
-            ->with('success', 'Author updated successfully.');
+        return to_route('authors.index')->with('success', 'Author updated successfully.');
     }
 
     public function destroy(Author $author): RedirectResponse
     {
         try {
             $this->authorService->delete($author);
-        } catch (QueryException $exception) {
-            if (!str_starts_with((string) $exception->getCode(), '23')) {
-                throw $exception;
-            }
-
-            return back()->with(
-                'error',
-                'This author cannot be deleted while books are linked to them.'
-            );
+        } catch (DomainException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        return redirect()
-            ->route('authors.index')
-            ->with('success', 'Author deleted successfully.');
+        return to_route('authors.index')->with('success', 'Author deleted successfully.');
     }
 }

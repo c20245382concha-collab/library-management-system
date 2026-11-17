@@ -24,8 +24,20 @@ class LibraryCrudTest extends TestCase
         $memberRole = Role::query()->firstOrCreate(['role_name' => 'Member/Student']);
         $this->actingAs($admin);
 
+        $this->get(route('authors.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Authors/Create')
+                ->where('title', 'Author')
+                ->where('resource', 'authors')
+                ->missing('fields'));
         $this->get(route('books.create'))
-            ->assertInertia(fn (Assert $page) => $page->component('Books/Create'));
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Books/Create')
+                ->where('resource', 'books')
+                ->has('authors')
+                ->has('publishers')
+                ->has('genres')
+                ->missing('fields'));
 
         $this->post(route('authors.store'), [
             'name' => 'Octavia Butler',
@@ -147,6 +159,8 @@ class LibraryCrudTest extends TestCase
         $book = $this->createBook();
 
         $this->actingAs($member);
+        $this->get(route('reviews.create', ['book_id' => 999999]))
+            ->assertSessionHasErrors('book_id');
         $this->get(route('books.show', $book))
             ->assertInertia(fn (Assert $page) => $page->component('Books/Show'));
         $this->post(route('reviews.store'), [

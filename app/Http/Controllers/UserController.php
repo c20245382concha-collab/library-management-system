@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserRequest;
-use App\Models\Role;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Database\QueryException;
+use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -39,7 +38,7 @@ class UserController extends Controller
         return Inertia::render('Users/Create', [
             'title' => 'User',
             'resource' => 'users',
-            'roles' => $this->roleOptions(),
+            'roles' => $this->userService->getRoleOptions(),
         ]);
     }
 
@@ -47,18 +46,14 @@ class UserController extends Controller
     {
         $this->userService->create($request->validated());
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User created successfully.');
+        return to_route('users.index')->with('success', 'User created successfully.');
     }
 
     public function show(User $user): Response
     {
-        $user->load('role');
-
         return Inertia::render('Users/Show', [
             'title' => 'User',
-            'item' => $user,
+            'item' => $this->userService->getForShow($user),
             'columns' => [
                 ['key' => 'name', 'label' => 'Name'],
                 ['key' => 'email', 'label' => 'Email'],
@@ -69,57 +64,32 @@ class UserController extends Controller
 
     public function edit(User $user): Response
     {
-        $user->load('role');
+        $user = $this->userService->getForEdit($user);
 
         return Inertia::render('Users/Edit', [
             'title' => 'User',
             'resource' => 'users',
             'recordId' => $user->id,
             'values' => $user->only('name', 'email', 'role_id'),
-            'roles' => $this->roleOptions(),
+            'roles' => $this->userService->getRoleOptions(),
         ]);
     }
 
-    public function update(
-        UserRequest $request,
-        User $user
-    ): RedirectResponse {
-        $this->userService->update(
-            $user,
-            $request->validated()
-        );
+    public function update(UserRequest $request, User $user): RedirectResponse
+    {
+        $this->userService->update($user, $request->validated());
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User updated successfully.');
+        return to_route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
         try {
             $this->userService->delete($user);
-        } catch (QueryException $exception) {
-            if (! str_starts_with((string) $exception->getCode(), '23')) {
-                throw $exception;
-            }
-
-            return back()->with('error', 'This user cannot be deleted while borrowing records are linked to them.');
+        } catch (DomainException $exception) {
+            return back()->with('error', $exception->getMessage());
         }
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User deleted successfully.');
-    }
-
-    private function roleOptions(): array
-    {
-        return Role::query()
-            ->orderBy('role_name')
-            ->get(['id', 'role_name'])
-            ->map(fn($role) => [
-                'value' => $role->id,
-                'label' => $role->role_name,
-            ])
-            ->all();
+        return to_route('users.index')->with('success', 'User deleted successfully.');
     }
 }
