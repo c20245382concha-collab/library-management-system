@@ -55,10 +55,10 @@ export default function AppearanceToggleTab({
                         aria-pressed={isActive}
                         className={cn(
                             'group relative flex min-h-40 flex-col items-start rounded-2xl border p-5 text-left transition-all duration-200',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#762f43] focus-visible:ring-offset-2',
-                            isActive
-                                ? 'border-[#762f43] bg-[#fdf5f5] shadow-sm ring-1 ring-[#762f43]/10'
-                                : 'border-[#eadfda] bg-white hover:border-[#c99ba5] hover:bg-[#fcf8f5]',
+                            'border-border bg-card hover:border-primary/50 hover:bg-accent/50',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                            isActive &&
+                            'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20',
                         )}
                     >
                         {/* Selected Indicator */}
@@ -66,8 +66,8 @@ export default function AppearanceToggleTab({
                             className={cn(
                                 'absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border transition-colors',
                                 isActive
-                                    ? 'border-[#762f43] bg-[#762f43] text-white'
-                                    : 'border-[#ddcfca] bg-white text-transparent',
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-border bg-background text-transparent',
                             )}
                         >
                             <Check className="h-3 w-3" />
@@ -78,8 +78,8 @@ export default function AppearanceToggleTab({
                             className={cn(
                                 'flex h-11 w-11 items-center justify-center rounded-xl transition-colors',
                                 isActive
-                                    ? 'bg-[#762f43] text-white'
-                                    : 'bg-[#f7e9e9] text-[#762f43] group-hover:bg-[#f1dede]',
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-primary/10 text-primary group-hover:bg-primary/20',
                             )}
                         >
                             <Icon className="h-5 w-5" />
@@ -91,20 +91,20 @@ export default function AppearanceToggleTab({
                                 className={cn(
                                     'text-sm font-semibold',
                                     isActive
-                                        ? 'text-[#762f43]'
-                                        : 'text-[#492b32]',
+                                        ? 'text-primary'
+                                        : 'text-card-foreground',
                                 )}
                             >
                                 {label}
                             </span>
 
-                            <p className="mt-1 text-xs leading-relaxed text-[#927b7d]">
+                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                 {description}
                             </p>
                         </div>
 
                         {isActive && (
-                            <span className="mt-3 text-[10px] font-bold uppercase tracking-wider text-[#762f43]">
+                            <span className="mt-3 text-[10px] font-bold uppercase tracking-wider text-primary">
                                 Currently selected
                             </span>
                         )}

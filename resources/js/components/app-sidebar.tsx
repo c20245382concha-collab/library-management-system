@@ -1,4 +1,19 @@
 
+import { useLayoutEffect, useRef } from 'react';
+import { usePage } from '@inertiajs/react';
+import {
+    BookOpen,
+    BookMarked,
+    BookPlus,
+    FolderOpen,
+    LayoutGrid,
+    MessageSquare,
+    Tags,
+    Users,
+    UserRound,
+} from 'lucide-react';
+
+import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -7,31 +22,16 @@ import {
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
-import {
-    BookOpen,
-    Building2,
-    ClipboardList,
-    LayoutGrid,
-    Star,
-    Tags,
-    UserRound,
-    Users,
-} from 'lucide-react';
-import AppLogo from './app-logo';
-
-const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
-    const user = usePage<SharedData>().props.auth.user;
+    const { auth } = usePage<SharedData>().props;
+
+    const sidebarContentRef = useRef<HTMLDivElement>(null);
 
     const roleName = (
-        user.role as { role_name?: string } | undefined
+        auth.user.role as { role_name?: string } | undefined
     )?.role_name;
 
     const isAdmin = roleName === 'Admin/Librarian';
@@ -57,7 +57,7 @@ export function AppSidebar() {
                 {
                     title: 'Publishers',
                     url: '/publishers',
-                    icon: Building2,
+                    icon: FolderOpen,
                 },
                 {
                     title: 'Genres',
@@ -72,27 +72,55 @@ export function AppSidebar() {
                 {
                     title: 'Borrowing Requests',
                     url: '/borrowing-requests',
-                    icon: ClipboardList,
+                    icon: BookPlus,
                 },
                 {
                     title: 'Reviews',
                     url: '/reviews',
-                    icon: Star,
+                    icon: MessageSquare,
                 },
             ]
             : [
                 {
                     title: 'My Requests',
-                    url: '/my-borrowing-requests',
-                    icon: ClipboardList,
+                    url: '/my-requests',
+                    icon: BookMarked,
                 },
                 {
                     title: 'Write a Review',
                     url: '/reviews/create',
-                    icon: Star,
+                    icon: MessageSquare,
                 },
             ]),
     ];
+
+    useLayoutEffect(() => {
+        const element = sidebarContentRef.current;
+
+        if (!element) return;
+
+        const storageKey = 'abcl-sidebar-scroll';
+
+        const savedPosition = sessionStorage.getItem(storageKey);
+
+        if (savedPosition !== null) {
+            element.scrollTop = Number(savedPosition);
+        }
+
+        const savePosition = () => {
+            sessionStorage.setItem(
+                storageKey,
+                String(element.scrollTop),
+            );
+        };
+
+        element.addEventListener('scroll', savePosition);
+
+        return () => {
+            savePosition();
+            element.removeEventListener('scroll', savePosition);
+        };
+    }, []);
 
     return (
         <Sidebar
@@ -100,39 +128,19 @@ export function AppSidebar() {
             variant="inset"
             className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
         >
-            {/* Header / Logo */}
-            <SidebarHeader className="border-b border-sidebar-border px-3 py-4">
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            size="lg"
-                            asChild
-                            className="rounded-xl transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                        >
-                            <Link href="/dashboard" prefetch>
-                                <AppLogo />
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+            <SidebarHeader>
+                <AppLogo />
             </SidebarHeader>
 
-            {/* Main Navigation */}
-            <SidebarContent className="px-2 py-4">
-                <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground group-data-[collapsible=icon]:hidden">
-                    Library Menu
-                </div>
-
+            <SidebarContent
+                ref={sidebarContentRef}
+                className="overflow-y-auto px-2 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            {/* Footer */}
-            <SidebarFooter className="border-t border-sidebar-border bg-sidebar px-2 py-3">
-                <NavFooter
-                    items={footerNavItems}
-                    className="mt-auto"
-                />
-
+            <SidebarFooter>
+                <NavFooter items={[]} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

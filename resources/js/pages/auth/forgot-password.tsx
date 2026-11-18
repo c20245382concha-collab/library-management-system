@@ -1,7 +1,13 @@
 
 import { Head, useForm } from '@inertiajs/react';
-import { ArrowLeft, BookOpen, LoaderCircle, Mail, ShieldCheck } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import {
+    ArrowLeft,
+    BookOpen,
+    LoaderCircle,
+    Mail,
+    ShieldCheck,
+} from 'lucide-react';
+import { type FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -28,6 +34,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot password" />
 
             <div className="space-y-6">
+
                 {/* Header icon */}
                 <div className="flex justify-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary text-primary shadow-sm">
@@ -35,6 +42,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     </div>
                 </div>
 
+                {/* Introduction */}
                 <div className="space-y-2 text-center">
                     <p className="text-sm leading-6 text-muted-foreground">
                         Enter the email address associated with your account.
@@ -42,6 +50,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     </p>
                 </div>
 
+                {/* Status message */}
                 {status && (
                     <div
                         role="status"
@@ -52,9 +61,13 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     </div>
                 )}
 
+                {/* Forgot password form */}
                 <form onSubmit={submit} className="space-y-5">
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-semibold text-foreground">
+                        <Label
+                            htmlFor="email"
+                            className="text-sm font-semibold text-foreground"
+                        >
                             Email address
                         </Label>
 
@@ -71,13 +84,14 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="you@example.com"
-                                className="h-12 rounded-xl border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30"
+                                className="h-12 rounded-xl border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
                             />
                         </div>
 
                         <InputError message={errors.email} />
                     </div>
 
+                    {/* Submit button */}
                     <Button
                         type="submit"
                         className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
@@ -97,6 +111,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     </Button>
                 </form>
 
+                {/* Back to login */}
                 <div className="flex items-center justify-center border-t border-border pt-5">
                     <TextLink
                         href={route('login')}
@@ -107,9 +122,12 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     </TextLink>
                 </div>
 
-                <div className="rounded-xl bg-accent/60 px-4 py-3 text-center">
+                {/* Assistance message */}
+                <div className="rounded-xl border border-border bg-accent/60 px-4 py-3 text-center">
                     <p className="text-xs leading-5 text-muted-foreground">
-                        <span className="font-semibold text-foreground">Need assistance?</span>
+                        <span className="font-semibold text-foreground">
+                            Need assistance?
+                        </span>
                         {' '}Contact your library administrator if you continue having trouble accessing your account.
                     </p>
                 </div>

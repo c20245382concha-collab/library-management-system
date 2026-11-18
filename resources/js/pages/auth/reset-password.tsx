@@ -12,7 +12,7 @@ import {
     Mail,
     ShieldCheck,
 } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { type FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -61,6 +61,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             <Head title="Reset password" />
 
             <div className="space-y-6">
+
                 {/* Library identity */}
                 <div className="flex justify-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary text-primary shadow-sm">
@@ -82,6 +83,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                 </div>
 
                 <form onSubmit={submit} className="space-y-5">
+
                     {/* Email */}
                     <div className="space-y-2">
                         <Label htmlFor="email" className="font-semibold text-foreground">
@@ -124,7 +126,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                                 required
                                 onChange={(e) => setData('password', e.target.value)}
                                 placeholder="Enter your new password"
-                                className="h-12 rounded-xl border-border bg-background pr-11 pl-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30"
+                                className="h-12 rounded-xl border-border bg-background pr-11 pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
                             />
 
                             <button
@@ -167,7 +169,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                                     setData('password_confirmation', e.target.value)
                                 }
                                 placeholder="Re-enter your new password"
-                                className="h-12 rounded-xl border-border bg-background pr-11 pl-10 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30"
+                                className="h-12 rounded-xl border-border bg-background pr-11 pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/30"
                             />
 
                             <button
@@ -194,6 +196,7 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                     {/* Password guidance */}
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-accent/50 p-3.5">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+
                         <p className="text-xs leading-5 text-muted-foreground">
                             Use a strong password that is difficult to guess.
                             Avoid sharing your password with anyone.

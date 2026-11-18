@@ -9,7 +9,7 @@ import {
     MailCheck,
     ShieldCheck,
 } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { type FormEventHandler } from 'react';
 
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -33,10 +33,12 @@ export default function VerifyEmail({ status }: { status?: string }) {
             <Head title="Email verification" />
 
             <div className="space-y-6">
+
                 {/* Library identity */}
                 <div className="flex justify-center">
                     <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl border border-border bg-secondary text-primary shadow-sm">
                         <BookOpen className="h-9 w-9" strokeWidth={1.7} />
+
                         <span className="absolute -right-2 -bottom-2 flex h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground">
                             <MailCheck className="h-4 w-4" />
                         </span>
@@ -72,6 +74,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                             <p className="text-sm font-semibold text-card-foreground">
                                 Your verification email
                             </p>
+
                             <p className="text-xs leading-5 text-muted-foreground">
                                 Look for an email from ABCL Library Management
                                 System. If you don't see it, check your spam or
@@ -88,6 +91,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         className="flex items-start gap-3 rounded-xl border border-green-700/20 bg-green-700/5 p-4 text-sm text-green-700 dark:text-green-400"
                     >
                         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+
                         <p className="leading-5">
                             A new verification link has been sent to the email
                             address you provided during registration.
@@ -95,7 +99,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     </div>
                 )}
 
-                {/* Resend */}
+                {/* Resend verification email */}
                 <form onSubmit={submit} className="space-y-4">
                     <Button
                         type="submit"
@@ -117,7 +121,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </form>
 
                 {/* Helpful note */}
-                <div className="rounded-xl bg-accent/50 px-4 py-3 text-center">
+                <div className="rounded-xl border border-border bg-accent/50 px-4 py-3 text-center">
                     <p className="text-xs leading-5 text-muted-foreground">
                         <span className="font-semibold text-foreground">
                             Didn't receive the email?

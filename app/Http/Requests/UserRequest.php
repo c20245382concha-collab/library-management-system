@@ -24,7 +24,12 @@ class UserRequest extends FormRequest
         $user = $this->route('user');
 
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[\pL\s]+$/u',
+            ],
             'email' => [
                 'required',
                 'email',
@@ -44,6 +49,13 @@ class UserRequest extends FormRequest
                 'max:255',
                 'confirmed',
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.regex' => 'The name may only contain letters and spaces.',
         ];
     }
 }
