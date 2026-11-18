@@ -7,6 +7,15 @@ use Illuminate\Validation\Rules;
 
 class RegistrationRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $name = $this->input('name');
+
+        if (is_string($name)) {
+            $this->merge(['name' => strip_tags($name)]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;
