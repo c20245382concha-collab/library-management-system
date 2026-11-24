@@ -83,7 +83,7 @@ export function AppSidebar() {
             : [
                 {
                     title: 'My Requests',
-                    url: '/my-requests',
+                    url: '/my-borrowing-requests',
                     icon: BookMarked,
                 },
                 {
