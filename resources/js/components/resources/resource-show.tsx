@@ -75,11 +75,11 @@ export default function ResourceShow({
         <AppLayout>
             <Head title={`${title} Details`} />
 
-            <main className="min-h-screen bg-[#fbf7f3] px-4 py-8 md:px-8">
+            <main className="min-h-screen bg-background px-4 py-8 md:px-8">
                 <div className="mx-auto max-w-5xl space-y-8">
                     <Link
                         href={route(`${resource}.index`)}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-[#806b68] transition hover:text-[#762f43]"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-primary"
                     >
                         <ArrowLeft className="size-4" />
                         Back to {title}
@@ -133,17 +133,17 @@ export default function ResourceShow({
                     </section>
 
                     {/* Record overview */}
-                    <section className="overflow-hidden rounded-2xl border border-[#eadfda] bg-white shadow-sm">
-                        <div className="flex items-center gap-3 border-b border-[#f0e7e2] px-6 py-5 md:px-8">
-                            <div className="flex size-10 items-center justify-center rounded-xl bg-[#f7e9e9] text-[#762f43]">
+                    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                        <div className="flex items-center gap-3 border-b border-border px-6 py-5 md:px-8">
+                            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                 <BookOpen className="size-5" />
                             </div>
 
                             <div>
-                                <h2 className="font-serif text-xl font-semibold text-[#422d31]">
+                                <h2 className="font-serif text-xl font-semibold text-card-foreground">
                                     Record Information
                                 </h2>
-                                <p className="text-xs text-[#9b8582]">
+                                <p className="text-xs text-muted-foreground">
                                     Complete details and related information
                                 </p>
                             </div>
@@ -157,24 +157,24 @@ export default function ResourceShow({
                                 return (
                                     <div
                                         key={column.key}
-                                        className={`min-w-0 border-b border-[#f0e7e2] py-5 ${index === columns.length - 1
+                                        className={`min-w-0 border-b border-border py-5 ${index === columns.length - 1
                                             ? 'sm:border-b-0'
                                             : ''
                                             }`}
                                     >
-                                        <dt className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-[#a17c7d]">
+                                        <dt className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">
                                             {index === 0 ? (
                                                 <CalendarDays className="size-3.5" />
                                             ) : (
-                                                <span className="size-1.5 rounded-full bg-[#c99ba4]" />
+                                                <span className="size-1.5 rounded-full bg-primary/50" />
                                             )}
                                             {formatLabel(column.label)}
                                         </dt>
 
                                         <dd
                                             className={`whitespace-pre-line break-words text-sm leading-7 ${isEmpty
-                                                ? 'italic text-[#b7a8a4]'
-                                                : 'font-medium text-[#514044]'
+                                                ? 'italic text-muted-foreground'
+                                                : 'font-medium text-card-foreground'
                                                 }`}
                                         >
                                             {value}
@@ -186,19 +186,19 @@ export default function ResourceShow({
                     </section>
 
                     {/* Footer */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#eadfda] bg-[#f4e7e4] px-6 py-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-muted px-6 py-5">
                         <div>
-                            <p className="font-serif text-base font-semibold text-[#762f43]">
+                            <p className="font-serif text-base font-semibold text-primary">
                                 {title} Record
                             </p>
-                            <p className="mt-1 text-xs text-[#806b68]">
+                            <p className="mt-1 text-xs text-muted-foreground">
                                 Review the information above or return to the list.
                             </p>
                         </div>
 
                         <Link
                             href={route(`${resource}.index`)}
-                            className="rounded-xl border border-[#d8bdba] bg-white px-4 py-2.5 text-sm font-semibold text-[#762f43] transition hover:bg-[#fbf7f3]"
+                            className="rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-accent hover:text-accent-foreground"
                         >
                             Back to List
                         </Link>
