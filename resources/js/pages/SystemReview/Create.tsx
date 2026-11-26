@@ -70,28 +70,40 @@ export default function Create() {
                             )}
                         </div>
 
+
                         <div>
                             <label className="mb-2 block text-sm font-medium">
                                 Rating
                             </label>
-                            <select
-                                value={data.rating}
-                                onChange={e => setData('rating', Number(e.target.value))}
-                                className="w-full rounded-xl border border-input bg-background p-3"
-                                required
-                            >
-                                {[5, 4, 3, 2, 1].map(number => (
-                                    <option key={number} value={number}>
-                                        {number} Star{number > 1 ? 's' : ''}
-                                    </option>
+
+                            <div className="flex items-center gap-2">
+                                {[1, 2, 3, 4, 5].map((number) => (
+                                    <button
+                                        key={number}
+                                        type="button"
+                                        onClick={() => setData('rating', number)}
+                                        className={`text-4xl transition-all duration-200 hover:scale-110 ${data.rating >= number
+                                            ? 'text-yellow-400'
+                                            : 'text-gray-300'
+                                            }`}
+                                        aria-label={`Rate ${number} star${number > 1 ? 's' : ''}`}
+                                    >
+                                        ★
+                                    </button>
                                 ))}
-                            </select>
+
+                                <span className="ml-2 text-sm font-medium text-muted-foreground">
+                                    {data.rating} / 5
+                                </span>
+                            </div>
+
                             {errors.rating && (
                                 <p className="mt-1 text-sm text-red-500">
                                     {errors.rating}
                                 </p>
                             )}
                         </div>
+
 
                         <div>
                             <label className="mb-2 block text-sm font-medium">
