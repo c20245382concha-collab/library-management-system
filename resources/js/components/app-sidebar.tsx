@@ -47,6 +47,7 @@ export function AppSidebar() {
             url: '/books',
             icon: BookOpen,
         },
+
         ...(isAdmin
             ? [
                 {
@@ -92,6 +93,11 @@ export function AppSidebar() {
                     icon: MessageSquare,
                 },
             ]),
+        {
+            title: 'System Reviews',
+            url: '/system-reviews',
+            icon: MessageSquare,
+        },
     ];
 
     useLayoutEffect(() => {

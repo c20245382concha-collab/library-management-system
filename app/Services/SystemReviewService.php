@@ -3,34 +3,49 @@
 namespace App\Services;
 
 use App\Models\SystemReview;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SystemReviewService
 {
-    public function getAll(int $perPage = 10): LengthAwarePaginator
+    public function paginate(?string $search = null, int $perPage = 10)
     {
         return SystemReview::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
             ->latest()
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
-    public function sanitize(array $data): array
+    private function sanitize(array $data): array
     {
         return [
-            'name' => trim(strip_tags($data['name'] ?? '')),
-            'email' => filter_var(
-                trim($data['email'] ?? ''),
-                FILTER_SANITIZE_EMAIL
-            ),
-            'rating' => (int) ($data['rating'] ?? 0),
-            'feedback' => trim(strip_tags($data['feedback'] ?? '')),
+            'name' => strip_tags(trim($data['name'])),
+            'email' => strtolower(trim($data['email'])),
+            'rating' => (int) $data['rating'],
+            'feedback' => strip_tags(trim($data['feedback'])),
         ];
     }
 
     public function create(array $data): SystemReview
     {
-        $sanitizedData = $this->sanitize($data);
+        return SystemReview::create(
+            $this->sanitize($data)
+        );
+    }
 
-        return SystemReview::create($sanitizedData);
+    public function update(SystemReview $systemReview, array $data): bool
+    {
+        return $systemReview->update(
+            $this->sanitize($data)
+        );
+    }
+
+    public function delete(SystemReview $systemReview): bool
+    {
+        return $systemReview->delete();
     }
 }

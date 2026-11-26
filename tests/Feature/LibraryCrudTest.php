@@ -9,6 +9,7 @@ use App\Models\BorrowingRequest;
 use App\Models\Genre;
 use App\Models\Publisher;
 use App\Models\Role;
+use App\Models\SystemReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -17,6 +18,62 @@ use Tests\TestCase;
 class LibraryCrudTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_authenticated_users_can_view_system_reviews_but_only_admins_can_manage_them(): void
+    {
+        $admin = $this->userWithRole('Admin/Librarian');
+        $member = $this->userWithRole('Member/Student');
+        $review = SystemReview::query()->create([
+            'name' => 'Taylor Reed',
+            'email' => 'taylor@example.test',
+            'rating' => 5,
+            'feedback' => 'An easy system to use.',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('system-reviews.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('SystemReview/Index')
+                ->where('canManage', true)
+                ->where('reviews.data.0.id', $review->id));
+        $this->get(route('system-reviews.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('SystemReview/Create'));
+        $this->post(route('system-reviews.store'), [
+            'name' => 'Admin Reviewer',
+            'email' => 'admin-reviewer@example.test',
+            'rating' => 4,
+            'feedback' => 'Admin submitted feedback.',
+        ])->assertRedirect(route('system-reviews.index'));
+
+        $this->actingAs($member)
+            ->get(route('system-reviews.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('SystemReview/Index')
+                ->where('canManage', false)
+                ->where('reviews.data.0.id', $review->id));
+
+        $this->get(route('system-reviews.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('SystemReview/Create'));
+        $this->post(route('system-reviews.store'), [
+            'name' => 'Member Reviewer',
+            'email' => 'member-reviewer@example.test',
+            'rating' => 5,
+            'feedback' => 'Member submitted feedback.',
+        ])->assertRedirect(route('system-reviews.index'));
+        $this->assertDatabaseHas('system_reviews', [
+            'email' => 'admin-reviewer@example.test',
+        ]);
+        $this->assertDatabaseHas('system_reviews', [
+            'email' => 'member-reviewer@example.test',
+        ]);
+        $this->get(route('system-reviews.edit', $review))->assertForbidden();
+        $this->get(route('system-reviews.show', $review))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('SystemReview/Show')
+                ->where('review.id', $review->id));
+    }
 
     public function test_admin_can_create_read_update_and_delete_library_records(): void
     {

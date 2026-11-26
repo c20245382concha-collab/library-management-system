@@ -31,7 +31,11 @@ export interface ResourceIndexProps {
     canManage?: boolean;
     canCreate?: boolean;
     canShow?: boolean;
+    canEdit?: boolean;
+    averageRating?: number;
+    totalReviews?: number;
 }
+
 
 function rowsFrom(items: ResourceIndexProps['items']): Row[] {
     return Array.isArray(items) ? items : items.data;
@@ -132,8 +136,11 @@ export default function ResourceIndex({
     columns,
     filters,
     canManage = true,
-    canCreate = true,
+    canCreate = canManage,
     canShow = true,
+    canEdit = canManage,
+    averageRating,
+    totalReviews,
 }: ResourceIndexProps) {
     const [search, setSearch] = useState(filters?.search ?? '');
 
@@ -198,14 +205,16 @@ export default function ResourceIndex({
 
                 {canManage && (
                     <>
-                        <Link
-                            aria-label={`Edit ${title}`}
-                            title="Edit"
-                            href={route(routes.edit, row.id as string | number)}
-                            className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
-                        >
-                            <Pencil className="size-4" />
-                        </Link>
+                        {canEdit && (
+                            <Link
+                                aria-label={`Edit ${title}`}
+                                title="Edit"
+                                href={route(routes.edit, row.id as string | number)}
+                                className="flex size-9 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                            >
+                                <Pencil className="size-4" />
+                            </Link>
+                        )}
 
                         <button
                             type="button"
@@ -253,7 +262,7 @@ export default function ResourceIndex({
                             </p>
                         </div>
 
-                        {canManage && canCreate && (
+                        {canCreate && (
                             <Link
                                 href={route(routes.create)}
                                 className="inline-flex h-11 items-center gap-2 rounded-full bg-[#FCE9ED] px-5 text-sm font-semibold text-[#541F32] transition hover:bg-white"
@@ -264,6 +273,51 @@ export default function ResourceIndex({
                         )}
                     </div>
                 </header>
+
+                {/* System Review Statistics */}
+                {title === 'System Reviews' && (
+                    <section className="grid gap-5 sm:grid-cols-2">
+                        {/* Average Rating */}
+                        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                            <p className="text-sm text-muted-foreground">
+                                Average User Rating
+                            </p>
+
+                            <div className="mt-3 flex items-center gap-3">
+                                <span className="text-4xl font-bold text-[#541F32]">
+                                    {Number(averageRating ?? 0).toFixed(2)}
+                                </span>
+
+                                <div>
+                                    <p className="text-xl text-yellow-500">
+                                        {'★'.repeat(
+                                            Math.max(0, Math.min(5, Math.round(averageRating ?? 0)))
+                                        )}
+                                        {'☆'.repeat(
+                                            5 - Math.max(0, Math.min(5, Math.round(averageRating ?? 0)))
+                                        )}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Out of 5 stars
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Total Reviews */}
+                        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                            <p className="text-sm text-muted-foreground">
+                                Total User Reviews
+                            </p>
+                            <p className="mt-3 text-4xl font-bold text-[#541F32]">
+                                {totalReviews ?? 0}
+                            </p>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                Submitted reviews
+                            </p>
+                        </div>
+                    </section>
+                )}
 
                 {/* Search and Section Heading */}
                 <section className="space-y-4">

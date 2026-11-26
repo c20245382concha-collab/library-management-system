@@ -9,6 +9,7 @@ export default function ReviewsIndex(
             resource="reviews"
             canCreate={false}
             canShow={false}
+            canEdit={false}
         />
     );
 }
