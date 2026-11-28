@@ -549,7 +549,7 @@ export default function ResourceIndex({
                 ) : (
                     /* Generic Resource Table */
                     <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                        <div className="overflow-x-auto">
+                        <div className="hidden overflow-x-auto xl:block">
                             <table className="w-full min-w-[640px] text-left text-sm">
                                 <thead className="border-b border-border bg-muted text-muted-foreground">
                                     <tr>
@@ -603,6 +603,41 @@ export default function ResourceIndex({
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div className="grid gap-3 p-4 xl:hidden">
+                            {rows.map((row, index) => (
+                                <article
+                                    key={String(row.id ?? index)}
+                                    className="min-w-0 rounded-xl border border-border bg-background p-4"
+                                >
+                                    <dl className="space-y-3">
+                                        {columns.map((column) => (
+                                            <div
+                                                key={column.key}
+                                                className="grid min-w-0 gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-4"
+                                            >
+                                                <dt className="text-xs font-semibold text-muted-foreground">
+                                                    {column.label}
+                                                </dt>
+                                                <dd className="min-w-0 break-words text-sm text-card-foreground">
+                                                    {cellValue(row, column.key)}
+                                                </dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+
+                                    <div className="mt-4 flex justify-end border-t border-border pt-3">
+                                        <ActionButtons row={row} />
+                                    </div>
+                                </article>
+                            ))}
+
+                            {rows.length === 0 && (
+                                <p className="px-2 py-10 text-center text-sm text-muted-foreground">
+                                    No records found.
+                                </p>
+                            )}
                         </div>
                     </section>
                 )}

@@ -178,8 +178,8 @@ export default function Welcome() {
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
                 {/* NAVIGATION */}
-                <header className="relative z-30 mx-auto max-w-[1440px] px-6 pt-7 sm:px-10 lg:px-16">
-                    <nav className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-card/80 px-5 py-4 shadow-sm backdrop-blur-md sm:px-8">
+                <header className="relative z-30 mx-auto max-w-[1440px] px-4 pt-4 sm:px-10 sm:pt-7 lg:px-16">
+                    <nav className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/80 px-4 py-4 shadow-sm backdrop-blur-md sm:gap-4 sm:px-8">
                         <a href="#" className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
                                 <BookOpen size={22} strokeWidth={2.2} />
@@ -289,15 +289,15 @@ export default function Welcome() {
                 </header>
 
                 {/* HERO */}
-                <section className="relative mx-auto grid min-h-[680px] max-w-[1440px] items-center gap-12 px-6 pb-24 pt-20 sm:px-10 lg:min-h-[720px] lg:grid-cols-[1fr_0.95fr] lg:px-16 lg:pb-28 lg:pt-16">
+                <section className="relative mx-auto grid min-h-[560px] max-w-[1440px] items-center gap-8 px-4 pb-16 pt-12 sm:min-h-[600px] sm:gap-12 sm:px-10 sm:pb-24 sm:pt-20 lg:min-h-[720px] lg:grid-cols-[1fr_0.95fr] lg:px-16 lg:pb-28 lg:pt-16">
                     <div className="relative z-10 max-w-[650px]">
-                        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold tracking-wide text-primary">
+                        <div className="mb-7 inline-flex max-w-full flex-wrap items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-[10px] font-semibold tracking-wide text-primary sm:px-4 sm:text-xs">
                             <Sparkles size={14} />
                             A BETTER WAY TO EXPERIENCE YOUR LIBRARY
                         </div>
 
                         <h1
-                            className="font-serif text-[clamp(3.5rem,7vw,6.7rem)] leading-[0.98] tracking-[-0.055em] text-foreground"
+                            className="font-serif text-[clamp(2.75rem,11vw,6.7rem)] leading-[0.98] tracking-[-0.055em] text-foreground"
                             style={{ fontFamily: "'Playfair Display', serif" }}
                         >
                             Every book
@@ -363,9 +363,9 @@ export default function Welcome() {
                     </div>
 
                     {/* DECORATIVE BOOK COLLECTION */}
-                    <div className="relative mx-auto h-[500px] w-full max-w-[560px] lg:h-[590px]">
-                        <div className="absolute left-[18%] top-[10%] h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-                        <div className="absolute right-[2%] top-[20%] h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
+                    <div className="relative mx-auto h-[min(112vw,420px)] min-h-[300px] w-full max-w-[560px] sm:h-[500px] lg:h-[590px]">
+                        <div className="absolute left-[18%] top-[10%] size-56 rounded-full bg-primary/10 blur-3xl sm:size-72" />
+                        <div className="absolute right-[2%] top-[20%] size-40 rounded-full bg-primary/10 blur-3xl sm:size-52" />
 
                         <div className="absolute left-[5%] top-[7%] w-[29%] rotate-[-11deg] transition duration-500 hover:-translate-y-3 hover:rotate-[-6deg]">
                             <BookCover book={books[0]} />
@@ -387,12 +387,12 @@ export default function Welcome() {
                             <BookCover book={books[0]} />
                         </div>
 
-                        <div className="absolute right-[1%] top-[44%] z-20 rounded-2xl border border-border bg-card/95 p-4 text-card-foreground shadow-xl backdrop-blur-md">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <div className="absolute right-[1%] top-[44%] z-20 max-w-[calc(100%-1rem)] rounded-2xl border border-border bg-card/95 p-3 text-card-foreground shadow-xl backdrop-blur-md sm:p-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:size-10">
                                     <LibraryBig size={20} />
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <p className="font-serif text-sm font-bold">
                                         Your library
                                     </p>

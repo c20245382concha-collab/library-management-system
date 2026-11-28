@@ -349,7 +349,7 @@ export default function BorrowingRequestsIndex({
                         </div>
 
                         {/* Desktop table */}
-                        <div className="hidden overflow-x-auto lg:block">
+                        <div className="hidden overflow-x-auto xl:block">
                             <table className="w-full min-w-[900px] text-left text-sm">
                                 <thead className="bg-muted/60 text-xs uppercase tracking-wider text-muted-foreground">
                                     <tr>
@@ -433,13 +433,13 @@ export default function BorrowingRequestsIndex({
                         </div>
 
                         {/* Mobile and tablet cards */}
-                        <div className="grid gap-3 p-4 lg:hidden">
+                        <div className="grid gap-3 p-4 xl:hidden">
                             {requests.data.map((item) => (
                                 <article
                                     key={item.id}
                                     className="rounded-2xl border border-border bg-muted/30 p-4"
                                 >
-                                    <div className="flex items-start justify-between gap-3">
+                                    <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
                                         <div className="flex min-w-0 items-center gap-3">
                                             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                                 <Users className="size-4" />
@@ -461,7 +461,7 @@ export default function BorrowingRequestsIndex({
                                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                         Requested Book
                                     </p>
-                                    <p className="mt-1 font-serif text-lg font-semibold text-card-foreground">
+                                    <p className="mt-1 break-words font-serif text-lg font-semibold text-card-foreground">
                                         {item.book?.title ?? 'Unknown book'}
                                     </p>
                                     <p className="mt-1 text-xs text-muted-foreground">
