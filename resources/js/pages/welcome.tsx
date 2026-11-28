@@ -1,4 +1,3 @@
-
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowDown,
@@ -78,6 +77,37 @@ const features = [
         title: 'A library you can rely on',
         description:
             'A centralized platform that makes library resources easier to access and manage.',
+    },
+];
+
+const teamMembers = [
+    {
+        name: 'Reniel Acojedo',
+        role: 'Project Planning and Documentation',
+        responsibility:
+            'Prepared project plans, organized documentation, and helped ensure that project requirements were documented.',
+        image: '/images/team/reniel-acojedo.jpeg',
+    },
+    {
+        name: 'Andrian Bandoy',
+        role: 'System Design and UML',
+        responsibility:
+            'Worked on system architecture, diagrams, database relationships, and system design documentation.',
+        image: '/images/team/andrian-bandoy.jpeg',
+    },
+    {
+        name: 'Jian Concha',
+        role: 'System Development',
+        responsibility:
+            'Worked on developing system features, backend operations, and integrating system components.',
+        image: '/images/team/jian-concha.jpeg',
+    },
+    {
+        name: 'Jayrold Leonico',
+        role: 'UI/UX and Testing',
+        responsibility:
+            'Worked on user interface design, frontend components, system usability, and testing.',
+        image: '/images/team/jayrold-leonico.png',
     },
 ];
 
@@ -172,7 +202,7 @@ export default function Welcome() {
                                 Collection
                             </a>
                             <a href="#about" className="transition hover:text-primary">
-                                About
+                                About Us
                             </a>
                         </div>
 
@@ -487,43 +517,98 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                {/* ABOUT / CTA */}
+                {/* ABOUT US / DEVELOPMENT TEAM */}
                 <section
                     id="about"
                     className="bg-card px-6 py-24 transition-colors duration-300 sm:px-10 lg:px-16 lg:py-28"
                 >
-                    <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-primary px-8 py-16 text-center text-primary-foreground sm:px-16 sm:py-20">
-                        <div className="absolute -left-20 -top-32 h-80 w-80 rounded-full border border-white/10" />
-                        <div className="absolute -bottom-40 -right-20 h-96 w-96 rounded-full border border-white/10" />
-
-                        <div className="relative z-10 mx-auto max-w-2xl">
-                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white">
-                                <BookOpen size={28} />
-                            </div>
+                    <div className="mx-auto max-w-7xl">
+                        <div className="mx-auto max-w-2xl text-center">
+                            <span className="text-xs font-bold tracking-[0.25em] text-primary">
+                                THE PEOPLE BEHIND ABCL
+                            </span>
 
                             <h2
-                                className="mt-8 font-serif text-4xl leading-tight sm:text-5xl"
+                                className="mt-5 font-serif text-4xl text-foreground sm:text-5xl"
                                 style={{ fontFamily: "'Playfair Display', serif" }}
                             >
-                                Your next favorite book
-                                <span className="block italic text-white/70">
-                                    is waiting for you.
-                                </span>
+                                Meet Our{' '}
+                                <span className="italic text-primary">Team.</span>
                             </h2>
 
-                            <p className="mx-auto mt-6 max-w-lg text-sm leading-7 text-white/75">
-                                Begin your journey with ABCL Library.
-                                Explore resources, discover new ideas, and
-                                make every reading experience count.
+                            <p className="mt-5 leading-8 text-muted-foreground">
+                                Meet the people who worked together to design,
+                                develop, and bring the ABCL Library Management
+                                System to life.
                             </p>
+                        </div>
 
-                            <Link
-                                href={actionUrl}
-                                className="mt-9 inline-flex items-center rounded-xl bg-white px-7 py-4 text-sm font-bold text-primary transition hover:-translate-y-1 hover:bg-white/90"
-                            >
-                                {auth.user ? 'Visit your dashboard' : 'Create your account'}
-                                <ArrowRight className="ml-3" size={17} />
-                            </Link>
+                        <div className="mt-16 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+                            {teamMembers.map((member) => (
+                                <article
+                                    key={member.name}
+                                    className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition duration-300 hover:-translate-y-2 hover:border-primary/40 hover:shadow-xl"
+                                >
+                                    <div className="aspect-[4/4.5] overflow-hidden bg-muted">
+                                        <img
+                                            src={member.image}
+                                            alt={member.name}
+                                            loading="lazy"
+                                            className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
+                                        />
+                                    </div>
+
+                                    <div className="p-6">
+                                        <h3 className="font-serif text-xl font-bold text-foreground">
+                                            {member.name}
+                                        </h3>
+
+                                        <p className="mt-2 text-xs font-bold leading-5 text-primary">
+                                            {member.role}
+                                        </p>
+
+                                        <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                                            {member.responsibility}
+                                        </p>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+
+                        {/* CALL TO ACTION */}
+                        <div className="relative mt-24 overflow-hidden rounded-[2rem] bg-primary px-8 py-16 text-center text-primary-foreground sm:px-16 sm:py-20">
+                            <div className="absolute -left-20 -top-32 h-80 w-80 rounded-full border border-white/10" />
+                            <div className="absolute -bottom-40 -right-20 h-96 w-96 rounded-full border border-white/10" />
+
+                            <div className="relative z-10 mx-auto max-w-2xl">
+                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white">
+                                    <BookOpen size={28} />
+                                </div>
+
+                                <h2
+                                    className="mt-8 font-serif text-4xl leading-tight sm:text-5xl"
+                                    style={{ fontFamily: "'Playfair Display', serif" }}
+                                >
+                                    Your next favorite book
+                                    <span className="block italic text-white/70">
+                                        is waiting for you.
+                                    </span>
+                                </h2>
+
+                                <p className="mx-auto mt-6 max-w-lg text-sm leading-7 text-white/75">
+                                    Begin your journey with ABCL Library.
+                                    Explore resources, discover new ideas, and
+                                    make every reading experience count.
+                                </p>
+
+                                <Link
+                                    href={actionUrl}
+                                    className="mt-9 inline-flex items-center rounded-xl bg-white px-7 py-4 text-sm font-bold text-primary transition hover:-translate-y-1 hover:bg-white/90"
+                                >
+                                    {auth.user ? 'Visit your dashboard' : 'Create your account'}
+                                    <ArrowRight className="ml-3" size={17} />
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </section>
